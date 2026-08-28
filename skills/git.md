@@ -2,11 +2,12 @@
 name: "Git"
 category: "tooling"
 level: ""
-last_used: ""
+last_used: "present"
 ---
 
 # Git
 
 ## Evidence
 
-- Usó control de versiones mediante GitHub en The Wild Brands (2023-11 a 2025-06).
+- Mantiene soluciones distribuidas en cerca de 200 repositorios en Sodimac (desde 2025-07).
+- Adoptó GitHub y desarrolló sus pipelines de GitHub Actions en The Wild Brands (2023-11 a 2025-06).

@@ -2,11 +2,11 @@
 name: "Vertex AI"
 category: "cloud"
 level: ""
-last_used: ""
+last_used: "present"
 ---
 
 # Vertex AI
 
 ## Evidence
 
-- Administró recursos de Vertex AI en Sodimac / Falabella (2021-03 a 2023-10).
+- Administra Vertex AI Workbench con Terraform sobre una red privada dedicada por requisitos de seguridad en Sodimac (desde 2025-07).

@@ -2,11 +2,11 @@
 name: "ADK"
 category: "framework"
 level: ""
-last_used: ""
+last_used: "present"
 ---
 
 # ADK
 
 ## Evidence
 
-- Usó ADK en un framework de APIs para soluciones de IA en Sodimac (desde 2025-07).
+- Integró ADK en el template de FastAPI utilizado para desarrollar soluciones de IA con telemetría y control de acceso en Sodimac (desde 2025-07).

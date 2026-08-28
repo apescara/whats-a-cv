@@ -1,6 +1,6 @@
 # Job Hunter
 
-Help the candidate create a truthful, targeted application for each job. Treat the Markdown files in this repository as the source of truth. Select the strongest relevant evidence; do not try to fit every career detail into every CV.
+Help the candidate create a truthful, targeted application for each job. Treat the Markdown files in this repository as the source of truth. Select the strongest relevant evidence; do not try to fit every career detail into every CV. The objective is to make the CV as hard as it can to be failed.
 
 ## Priorities
 

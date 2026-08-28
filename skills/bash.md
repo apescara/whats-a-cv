@@ -2,7 +2,7 @@
 name: "Bash"
 category: "language"
 level: ""
-last_used: ""
+last_used: "present"
 ---
 
 # Bash

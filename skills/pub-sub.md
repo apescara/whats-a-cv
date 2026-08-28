@@ -2,11 +2,11 @@
 name: "Pub/Sub"
 category: "cloud"
 level: ""
-last_used: ""
+last_used: "2025-06"
 ---
 
 # Pub/Sub
 
 ## Evidence
 
-- Desarrolló flujos asíncronos en The Wild Brands (2023-11 a 2025-06).
+- Procesó órdenes de Shopify recibidas mediante webhooks y conectadas con Dataflow en The Wild Brands (2023-11 a 2025-06).

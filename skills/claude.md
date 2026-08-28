@@ -2,12 +2,13 @@
 name: "Claude"
 category: "tooling"
 level: ""
-last_used: ""
+last_used: "present"
 ---
 
 # Claude
 
 ## Evidence
 
-- Administró licencias y presupuesto de Claude a nivel Sodimac (desde 2025-07).
-- Creó y mantuvo un repositorio interno de skills y agentes con Claude y Gemini.
+- Capacitó a más de 80 usuarios en el uso básico de Claude en Sodimac (desde 2025-07).
+- Administra usuarios y presupuesto de Claude como focal point de Sodimac (desde 2025-07).
+- Mantiene un repositorio interno de agentes y skills para acelerar el desarrollo y la documentación.

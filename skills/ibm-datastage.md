@@ -2,11 +2,11 @@
 name: "IBM DataStage"
 category: "data"
 level: ""
-last_used: ""
+last_used: "2021-02"
 ---
 
 # IBM DataStage
 
 ## Evidence
 
-- Diseñó procesos ETL para el sector bancario y financiero en Management Solutions (2019-06 a 2021-02).
+- Desarrolló ETLs para un datamart de riesgo bancario con controles de recursos, precisión de seis decimales y validaciones en DB2 en Management Solutions (2019-06 a 2021-02).
