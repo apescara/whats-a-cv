@@ -1,8 +1,8 @@
 ---
 name: "Professional Data Engineer"
 issuer: "Google Cloud Platform"
-issued: ""
-expires: ""
+issued: "Dec 2019"
+expires: "Dec 2021"
 credential_id: "32a311c0-7c66-41f5-8c24-ffbc7825aef7"
 url: ""
 ---

@@ -1,7 +1,7 @@
 ---
 name: "First Certificate in English (FCE)"
 issuer: "Cambridge University"
-issued: ""
+issued: "Nov 2012"
 expires: ""
 credential_id: "0038010792"
 url: ""
