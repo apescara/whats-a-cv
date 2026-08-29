@@ -5,12 +5,12 @@ level: "" # optional; use only when defensible
 last_used: "YYYY-MM"
 ---
 
-# Skill name
+# Expertise name
 
 ## Evidence
 
-- Role, project, certification, or outcome that demonstrates this skill.
+- Role, project, certification, or outcome that demonstrates this expertise.
 
 ## Notes
 
-Optional details such as versions, depth, or contexts where the skill was used.
+Optional details such as versions, depth, or contexts where the expertise was used.

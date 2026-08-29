@@ -19,7 +19,7 @@ job-hunter/
 ├── education/           # One qualification per file
 ├── certifications/      # One certification per file
 ├── projects/            # Selected professional or personal projects
-├── skills/              # One skill per file, including supporting evidence
+├── expertise/           # One candidate technology or capability per file, with evidence
 ├── languages/           # One spoken language per file
 ├── applications/        # One dated folder per tailored application
 ├── preferences.md       # Search criteria; never copied to the CV automatically
@@ -60,6 +60,7 @@ Start from `TEMPLATE.tex` and keep the `moderncv` document class.
 - Keep skills grouped and scannable. Avoid ratings, progress bars, keyword stuffing, photos, full street addresses, references, and personal attributes.
 - Remove empty, irrelevant, or unsupported sections and fields.
 - Escape LaTeX special characters such as `&`, `%`, `$`, `#`, `_`, `{`, and `}`.
+- Priorize an experience fitting for the role over the ones with metrics. Sometimes they just need the tool checklist.
 
 ## Deliverable 2: `next-steps.mdx`
 

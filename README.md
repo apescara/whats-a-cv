@@ -9,10 +9,10 @@ Copy the `_template.md` file in each folder and create one file per real item. S
 1. `contact/`
 2. `experience/`
 3. `education/`
-4. `skills/` and `languages/`
+4. `expertise/` and `languages/`
 5. `certifications/` and `projects/` when relevant
 
-Keep claims factual and add outcomes, scale, and metrics to experience files whenever you can verify them. Skills are most persuasive when their `Evidence` section points to a role, achievement, or project.
+Keep claims factual and add outcomes, scale, and metrics to experience files whenever you can verify them. Expertise records are most persuasive when their `Evidence` section points to a role, achievement, or project.
 
 Fill in `preferences.md` to help evaluate opportunities. It is planning context and is not copied into a CV automatically.
 
