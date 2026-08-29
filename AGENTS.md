@@ -42,7 +42,7 @@ The candidate will provide a job description or job-post URL and may provide a p
 ## Workflow
 
 1. Create `applications/YYYY-MM-DD-company-role/` using a lowercase hyphenated slug.
-2. Save the supplied posting as `job-post.md`, including company, role, source URL when available, retrieval date, language, and the original description.
+2. Save the supplied posting as `job-post.md`, including company, role, source URL when available, retrieval date, language, and the original description.y
 3. Extract the role's must-have requirements, preferred requirements, responsibilities, keywords, and likely recruiter concerns.
 4. Match each requirement to explicit evidence in the candidate files. Rank evidence by relevance, recency, specificity, and demonstrated impact.
 5. Write the two deliverables below.
