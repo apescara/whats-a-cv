@@ -41,6 +41,7 @@ export default function RecordDetailPage({ params }: { params: Promise<{ kind: s
       <dl className="record-fields">
         {fields.map(([key, value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{typeof value === "string" ? value : JSON.stringify(value)}</dd></div>)}
       </dl>
+      {Array.isArray(record.evidence) && <section aria-labelledby="evidence-title"><h2 id="evidence-title">Evidence</h2><ul>{record.evidence.map((item, index) => { const evidence = item as { text?: string; source?: { relative_path?: string } }; const match = evidence.source?.relative_path?.match(/^(contact|experience|education|certifications|projects|expertise|languages)\/([^/]+)\.md$/); return <li key={index}>{match ? <a href={`/profile/${match[1]}/${match[2]}`}>{evidence.text}</a> : evidence.text}</li>; })}</ul></section>}
       {record.body && <pre className="markdown-preview">{String(record.body)}</pre>}
       {record.type ? <ContactEditor record={record} /> : record.role && record.company ? <RecordEditor record={record} kind="experience" /> : record.qualification ? <RecordEditor record={record} kind="education" /> : record.issuer ? <RecordEditor record={record} kind="certifications" /> : record.category ? <RecordEditor record={record} kind="expertise" /> : record.language ? <RecordEditor record={record} kind="languages" /> : record.name ? <RecordEditor record={record} kind="projects" /> : null}
     </article>

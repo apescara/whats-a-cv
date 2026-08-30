@@ -116,7 +116,7 @@ Status conventions:
 - [x] **P2-18 — Add approve/reject controls.** Apply or reject a proposal and refresh the record state. Dependencies: P2-17. Check: browser test covers approval and rejection.
 - [x] **P2-19 — Add create-record flow.** Derive a suggested slug, require user confirmation, and create through the proposal API. Dependencies: P2-18. Check: create one fixture record in a temporary repository.
 - [x] **P2-20 — Show validation summaries.** Display actionable per-field and corpus-level validation errors. Dependencies: P1-23, P2-06. Check: two server errors render without losing either message.
-- [ ] **P2-21 — Add evidence links.** Make expertise evidence references navigate to their source records where resolvable. Dependencies: P2-12. Check: known source link opens the correct record.
+- [x] **P2-21 — Add evidence links.** Make expertise evidence references navigate to their source records where resolvable. Dependencies: P2-12. Check: known source link opens the correct record.
 - [ ] **P2-22 — Profile accessibility check.** Test keyboard use, labels, focus, contrast, and error announcements for one complete edit flow. Dependencies: P2-01 through P2-21. Check: Playwright accessibility smoke test.
 
 ## Phase 3 — Applications and PDF workspace
