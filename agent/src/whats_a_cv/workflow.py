@@ -83,6 +83,13 @@ class EvidenceCandidate(BaseModel):
     relevance_reason: str
     confidence: float = Field(ge=0, le=1)
 
+    @field_validator("source_path", "excerpt")
+    @classmethod
+    def required_source_reference(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("evidence requires a source reference and excerpt")
+        return value
+
 
 class EvidenceSet(BaseModel):
     candidates: list[EvidenceCandidate]
