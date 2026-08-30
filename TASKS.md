@@ -81,17 +81,17 @@ Status conventions:
 - [x] **P1-18 — Model language records.** Add the schema required by `languages/_template.md`. Dependencies: P1-04. Check: parse every language record.
 - [x] **P1-19 — Model contact records.** Add the contact schema and an inclusion flag without logging values. Dependencies: P1-04. Check: caplog test contains no contact value.
 - [x] **P1-20 — Model preferences.** Parse and serialize `preferences.md` separately from CV-eligible records. Dependencies: P1-03, P1-05. Check: round-trip `preferences.md` without exposing it as CV evidence.
-- [ ] **P1-21 — List records.** Implement repository listing by kind with slug, title, validation state, and relative path. Dependencies: P1-13 through P1-20. Check: expected tracked record counts.
-- [ ] **P1-22 — Read one record.** Implement typed record retrieval by kind and slug. Dependencies: P1-21. Check: known record succeeds and unknown slug returns a typed not-found error.
-- [ ] **P1-23 — Validate the whole profile.** Return all source errors in one report instead of stopping at the first file. Dependencies: P1-21. Check: injected two-error fixture returns both errors.
-- [ ] **P1-24 — Create proposal storage.** Add a SQLite proposal table containing target path, old hash, proposed content, diff, status, and timestamps. Dependencies: P1-12. Check: migration and repository test.
-- [ ] **P1-25 — Create change proposals.** Add a service that validates content and stores a proposal without changing the target. Dependencies: P1-23, P1-24. Check: target hash is unchanged after proposal creation.
-- [ ] **P1-26 — Approve change proposals.** Approve only a pending proposal whose old hash still matches, then use atomic write. Dependencies: P1-11, P1-25. Check: stale-hash approval fails without writing.
-- [ ] **P1-27 — Reject change proposals.** Record rejection and make later approval impossible. Dependencies: P1-25. Check: rejected proposal leaves the target unchanged.
-- [ ] **P1-28 — Expose record reads.** Add `GET /records/{kind}` and `GET /records/{kind}/{slug}`. Dependencies: P1-21, P1-22. Check: API tests for success, validation error, and not found.
-- [ ] **P1-29 — Expose proposal actions.** Add create, inspect, approve, and reject proposal endpoints. Dependencies: P1-25 through P1-27. Check: API lifecycle test.
-- [ ] **P1-30 — Expose MCP read tools.** Add `list_records` and `read_record` through one local MCP server. Dependencies: P1-28. Check: MCP tool contract test with no network dependency.
-- [ ] **P1-31 — Expose MCP proposal tools.** Add proposal creation and status tools, but no direct write tool. Dependencies: P1-29, P1-30. Check: MCP manifest contains no unrestricted filesystem tool.
+- [x] **P1-21 — List records.** Implement repository listing by kind with slug, title, validation state, and relative path. Dependencies: P1-13 through P1-20. Check: expected tracked record counts.
+- [x] **P1-22 — Read one record.** Implement typed record retrieval by kind and slug. Dependencies: P1-21. Check: known record succeeds and unknown slug returns a typed not-found error.
+- [x] **P1-23 — Validate the whole profile.** Return all source errors in one report instead of stopping at the first file. Dependencies: P1-21. Check: injected two-error fixture returns both errors.
+- [x] **P1-24 — Create proposal storage.** Add a SQLite proposal table containing target path, old hash, proposed content, diff, status, and timestamps. Dependencies: P1-12. Check: migration and repository test.
+- [x] **P1-25 — Create change proposals.** Add a service that validates content and stores a proposal without changing the target. Dependencies: P1-23, P1-24. Check: target hash is unchanged after proposal creation.
+- [x] **P1-26 — Approve change proposals.** Approve only a pending proposal whose old hash still matches, then use atomic write. Dependencies: P1-11, P1-25. Check: stale-hash approval fails without writing.
+- [x] **P1-27 — Reject change proposals.** Record rejection and make later approval impossible. Dependencies: P1-25. Check: rejected proposal leaves the target unchanged.
+- [x] **P1-28 — Expose record reads.** Add `GET /records/{kind}` and `GET /records/{kind}/{slug}`. Dependencies: P1-21, P1-22. Check: API tests for success, validation error, and not found.
+- [x] **P1-29 — Expose proposal actions.** Add create, inspect, approve, and reject proposal endpoints. Dependencies: P1-25 through P1-27. Check: API lifecycle test.
+- [x] **P1-30 — Expose MCP read tools.** Add `list_records` and `read_record` through one local MCP server. Dependencies: P1-28. Check: MCP tool contract test with no network dependency.
+- [x] **P1-31 — Expose MCP proposal tools.** Add proposal creation and status tools, but no direct write tool. Dependencies: P1-29, P1-30. Check: MCP manifest contains no unrestricted filesystem tool.
 - [ ] **P1-32 — Repository security review.** **Terra review.** Audit path handling, atomic writes, contact redaction, and proposal races; fix only demonstrated issues and add regression tests. Dependencies: P1-01 through P1-31. Check: full agent test suite.
 
 ## Phase 2 — Profile workspace and design system

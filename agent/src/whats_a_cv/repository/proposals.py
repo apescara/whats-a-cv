@@ -14,6 +14,7 @@ def content_hash(content: str) -> str:
 class ProposalStore:
     def __init__(self, database: Path):
         self.database = database
+        database.parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(database) as db:
             db.execute("""CREATE TABLE IF NOT EXISTS proposals (
                 id INTEGER PRIMARY KEY, target_path TEXT NOT NULL, old_hash TEXT NOT NULL,
