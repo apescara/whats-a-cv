@@ -1,4 +1,4 @@
-from whats_a_cv.workflow import CheckpointStore, ReviewDecision, continue_after_evidence, draft_requirements, evidence_review, new_state, retrieve_evidence
+from whats_a_cv.workflow import CheckpointStore, ReviewDecision, continue_after_evidence, draft_requirements, evidence_review, finalize_application, new_state, retrieve_evidence
 from whats_a_cv.app import WorkflowStartRequest, workflow_start
 from whats_a_cv.repository import ApplicationMetadata
 
@@ -41,3 +41,12 @@ def test_approved_evidence_advances_to_a_draft():
     continue_after_evidence(state)
     assert state["stage"] == "generation_complete"
     assert state["drafts"]["cv"]["claims"][0]["evidence_ids"] == ["0"]
+
+
+def test_finalize_reuses_stale_draft_directory(tmp_path):
+    state = new_state("retry-thread")
+    state["approvals"] = {"final": True}
+    stale = tmp_path / ".whats-a-cv" / "drafts" / state["thread_id"]
+    stale.mkdir(parents=True)
+    files = {"job-post.md": "---\ncompany: Acme\nrole: Engineer\n---\n", "cv.tex": "\\documentclass{article}", "next-steps.mdx": "# Next steps\n"}
+    assert finalize_application(tmp_path, "2026-08-30-acme-engineer", files, state).is_dir()

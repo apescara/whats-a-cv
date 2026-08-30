@@ -380,7 +380,9 @@ def finalize_application(root: Path, slug: str, files: dict[str, str], state: Gr
     if target.exists():
         raise FileExistsError(f"application already exists: {slug}")
     temporary = root / ".whats-a-cv" / "drafts" / state["thread_id"]
-    temporary.mkdir(parents=True, exist_ok=False)
+    if temporary.is_symlink() or (temporary.exists() and not temporary.is_dir()):
+        raise ValueError("draft path is invalid")
+    temporary.mkdir(parents=True, exist_ok=True)
     for name, content in files.items():
         atomic_write(temporary / name, content)
     target.parent.mkdir(parents=True, exist_ok=True)

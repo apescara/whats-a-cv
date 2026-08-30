@@ -197,7 +197,7 @@ def workflow_finalize(thread_id: str):
     }
     try:
         path = finalize_application(REPOSITORY_ROOT, slug, files, state)
-    except (FileExistsError, ValueError) as error:
+    except (FileExistsError, ValueError, OSError) as error:
         raise HTTPException(status_code=409, detail=str(error)) from error
     CHECKPOINTS.save(state)
     return {"slug": slug, "path": str(path.relative_to(REPOSITORY_ROOT))}
