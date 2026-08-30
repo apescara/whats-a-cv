@@ -11,6 +11,8 @@ from typing import Any, Literal, TypedDict
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from .repository import ApplicationMetadata, RecordKind, atomic_write, list_records, load_record
+
 RequirementCategory = Literal["must-have", "preferred", "responsibility", "keyword", "recruiter-concern"]
 
 
@@ -167,3 +169,59 @@ class CheckpointStore:
 
 def checkpoint_store(root: Path) -> CheckpointStore:
     return CheckpointStore(root / ".whats-a-cv" / "state.db")
+
+
+def ingest_job(state: GraphState, root: Path, job: dict[str, Any]) -> GraphState:
+    metadata = ApplicationMetadata.model_validate(job.get("metadata", job))
+    text = str(job.get("text", "")).strip()
+    if not text:
+        raise ValueError("job text is required")
+    path = root / ".whats-a-cv" / "jobs" / f"{state['thread_id']}.md"
+    atomic_write(path, text + "\n")
+    state["job"] = {"metadata": metadata.model_dump(), "source_path": str(path.relative_to(root))}
+    return state
+
+
+def extract_requirements(state: GraphState, model: Any) -> GraphState:
+    prompt = state["job"]
+    result = model.invoke(json.dumps(prompt))
+    result = result if isinstance(result, RequirementSet) else RequirementSet.model_validate(result)
+    state["requirements"] = result.model_dump()
+    return state
+
+
+def retrieve_evidence(state: GraphState, root: Path) -> GraphState:
+    requirements = RequirementSet.model_validate(state["requirements"])
+    candidates: list[EvidenceCandidate] = []
+    for requirement in requirements.requirements:
+        terms = {word.lower() for word in requirement.text.split() if len(word) > 2}
+        for kind in RecordKind:
+            for summary in list_records(root, kind):
+                if not summary.valid:
+                    continue
+                record = load_record(root, kind, summary.slug)
+                for line in record.body.splitlines():
+                    if terms and len(terms & set(line.lower().split())) >= max(1, min(2, len(terms))):
+                        candidates.append(EvidenceCandidate(requirement_id=requirement.id, source_path=summary.relative_path, section="body", excerpt=line.strip(), relevance_reason="lexical match", confidence=0.5))
+    state["evidence"] = EvidenceSet(candidates=candidates).model_dump()
+    return state
+
+
+def rank_evidence(state: GraphState, model: Any) -> GraphState:
+    supplied = EvidenceSet.model_validate(state.get("evidence", {}))
+    result = model.invoke(supplied.model_dump_json())
+    ranked = result if isinstance(result, EvidenceSet) else EvidenceSet.model_validate(result)
+    allowed = {(item.requirement_id, item.source_path, item.excerpt) for item in supplied.candidates}
+    if any((item.requirement_id, item.source_path, item.excerpt) not in allowed for item in ranked.candidates):
+        raise ValueError("model returned evidence that was not supplied")
+    state["evidence"] = ranked.model_dump()
+    return state
+
+
+def evidence_review(state: GraphState, decision: ReviewDecision | None = None) -> GraphState:
+    if decision is None:
+        state["interrupt"] = "evidence_review"
+        return state
+    state["decisions"] = {"evidence": decision.model_dump()}
+    state["interrupt"] = None
+    return state
