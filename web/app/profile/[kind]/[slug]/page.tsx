@@ -42,7 +42,7 @@ export default function RecordDetailPage({ params }: { params: Promise<{ kind: s
         {fields.map(([key, value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{typeof value === "string" ? value : JSON.stringify(value)}</dd></div>)}
       </dl>
       {record.body && <pre className="markdown-preview">{String(record.body)}</pre>}
-      {record.role ? <RecordEditor record={record} kind="experience" /> : record.qualification ? <RecordEditor record={record} kind="education" /> : null}
+      {record.role ? <RecordEditor record={record} kind="experience" /> : record.qualification ? <RecordEditor record={record} kind="education" /> : record.issuer ? <RecordEditor record={record} kind="certifications" /> : null}
     </article>
   );
 }
