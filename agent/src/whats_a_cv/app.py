@@ -1,3 +1,4 @@
+import os
 from typing import Literal
 
 from pathlib import Path
@@ -7,7 +8,11 @@ from pydantic import BaseModel
 
 from .repository import ProposalStore, RecordKind, RecordNotFoundError, list_records, load_record
 
-REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
+def repository_root() -> Path:
+    return Path(os.environ.get("WHATS_A_CV_REPOSITORY", Path(__file__).resolve().parents[3])).resolve()
+
+
+REPOSITORY_ROOT = repository_root()
 PROPOSALS = ProposalStore(REPOSITORY_ROOT / ".whats-a-cv" / "state.db", REPOSITORY_ROOT)
 
 
