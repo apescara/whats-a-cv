@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any
 
 import yaml
@@ -31,3 +32,13 @@ def parse_frontmatter(
     if not isinstance(parsed, dict):
         raise ValueError(f"{source}: frontmatter must be a mapping")
     return parsed
+
+
+def serialize_frontmatter(frontmatter: Mapping[str, Any], body: str) -> str:
+    """Serialize frontmatter and Markdown with a stable final newline."""
+    header = yaml.safe_dump(
+        dict(frontmatter), sort_keys=False, allow_unicode=True
+    )
+    if body and not body.endswith("\n"):
+        body += "\n"
+    return f"---\n{header}---\n{body}"
