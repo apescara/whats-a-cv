@@ -68,11 +68,11 @@ Status conventions:
 - [x] **P1-05 — Serialize records.** Serialize frontmatter plus body with stable field ordering and a final newline. Dependencies: P1-04. Check: snapshot one template round trip.
 - [x] **P1-06 — Preserve record content.** Add corpus round-trip tests proving parse/serialize/parse semantic equality for every tracked source record. Dependencies: P1-05. Check: `cd agent && uv run pytest tests/repository/test_round_trip.py`.
 - [x] **P1-07 — Validate filenames.** Add lowercase hyphenated slug validation and reserved `_template.md` handling. Dependencies: P1-01. Check: tests for valid, uppercase, traversal-like, and template filenames.
-- [ ] **P1-08 — Validate ISO dates.** Support `YYYY-MM`, `YYYY-MM-DD`, and `present` only where allowed. Dependencies: P1-01. Check: boundary and invalid-date tests.
-- [ ] **P1-09 — Enforce approved paths.** Resolve record paths beneath their approved roots and reject absolute paths, `..`, hidden paths, and unsupported extensions. Dependencies: P1-01, P1-07. Check: traversal tests.
-- [ ] **P1-10 — Reject symlink escapes.** Prevent reads and writes through symlinks escaping the repository. Dependencies: P1-09. Check: temporary symlink escape test.
-- [ ] **P1-11 — Add atomic writes.** Write through a temporary sibling file, fsync where supported, and replace atomically. Dependencies: P1-09. Check: failed-write test leaves the original unchanged.
-- [ ] **P1-12 — Generate unified diffs.** Return a stable relative-path diff for proposed content without writing it. Dependencies: P1-05. Check: exact diff assertion for one changed field.
+- [x] **P1-08 — Validate ISO dates.** Support `YYYY-MM`, `YYYY-MM-DD`, and `present` only where allowed. Dependencies: P1-01. Check: boundary and invalid-date tests.
+- [x] **P1-09 — Enforce approved paths.** Resolve record paths beneath their approved roots and reject absolute paths, `..`, hidden paths, and unsupported extensions. Dependencies: P1-01, P1-07. Check: traversal tests.
+- [x] **P1-10 — Reject symlink escapes.** Prevent reads and writes through symlinks escaping the repository. Dependencies: P1-09. Check: temporary symlink escape test.
+- [x] **P1-11 — Add atomic writes.** Write through a temporary sibling file, fsync where supported, and replace atomically. Dependencies: P1-09. Check: failed-write test leaves the original unchanged.
+- [x] **P1-12 — Generate unified diffs.** Return a stable relative-path diff for proposed content without writing it. Dependencies: P1-05. Check: exact diff assertion for one changed field.
 - [x] **P1-13 — Model experience records.** Add the schema required by `experience/_template.md`. Dependencies: P1-04, P1-08. Check: parse every experience record.
 - [x] **P1-14 — Model education records.** Add the schema required by `education/_template.md`. Dependencies: P1-04, P1-08. Check: parse every education record.
 - [x] **P1-15 — Model certification records.** Add the schema required by `certifications/_template.md`. Dependencies: P1-04, P1-08. Check: parse every certification record.

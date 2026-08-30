@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from .repository import ProposalStore, RecordKind, RecordNotFoundError, list_records, load_record
 
-REPOSITORY_ROOT = Path(__file__).resolve().parents[4]
+REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 PROPOSALS = ProposalStore(REPOSITORY_ROOT / ".whats-a-cv" / "state.db")
 
 
