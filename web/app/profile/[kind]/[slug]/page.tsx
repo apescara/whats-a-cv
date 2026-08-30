@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { components } from "../../../../lib/api.generated";
+import ExperienceEditor from "./editor";
 
 type RecordKind = components["schemas"]["RecordKind"];
 type RecordData = { slug: string; body?: string; relative_path?: string; [key: string]: unknown };
@@ -36,11 +37,12 @@ export default function RecordDetailPage({ params }: { params: Promise<{ kind: s
     <article>
       <a href="/profile">← Profile</a>
       <h1>{String(record.role || record.name || record.qualification || record.language || record.type || record.slug)}</h1>
-      <p className="source-path">Source: {record.relative_path || "repository record"}</p>
+      <p className="source-path">Source: {String(record.relative_path || "repository record")}</p>
       <dl className="record-fields">
         {fields.map(([key, value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{typeof value === "string" ? value : JSON.stringify(value)}</dd></div>)}
       </dl>
-      {record.body && <pre className="markdown-preview">{record.body}</pre>}
+      {record.body && <pre className="markdown-preview">{String(record.body)}</pre>}
+      {record.role ? <ExperienceEditor record={record} /> : null}
     </article>
   );
 }

@@ -247,6 +247,41 @@ main h1 {
   color: var(--color-gap);
 }
 
+.record-editor {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 40rem;
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.record-editor label {
+  display: grid;
+  gap: var(--space-1);
+  font-weight: 700;
+}
+
+.record-editor input,
+.record-editor textarea {
+  width: 100%;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font: inherit;
+}
+
+.record-editor button {
+  width: fit-content;
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font: inherit;
+  font-weight: 700;
+}
+
 @media (max-width: 48rem) {
   .app-shell {
     display: block;
