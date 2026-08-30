@@ -73,14 +73,14 @@ Status conventions:
 - [ ] **P1-10 — Reject symlink escapes.** Prevent reads and writes through symlinks escaping the repository. Dependencies: P1-09. Check: temporary symlink escape test.
 - [ ] **P1-11 — Add atomic writes.** Write through a temporary sibling file, fsync where supported, and replace atomically. Dependencies: P1-09. Check: failed-write test leaves the original unchanged.
 - [ ] **P1-12 — Generate unified diffs.** Return a stable relative-path diff for proposed content without writing it. Dependencies: P1-05. Check: exact diff assertion for one changed field.
-- [ ] **P1-13 — Model experience records.** Add the schema required by `experience/_template.md`. Dependencies: P1-04, P1-08. Check: parse every experience record.
-- [ ] **P1-14 — Model education records.** Add the schema required by `education/_template.md`. Dependencies: P1-04, P1-08. Check: parse every education record.
-- [ ] **P1-15 — Model certification records.** Add the schema required by `certifications/_template.md`. Dependencies: P1-04, P1-08. Check: parse every certification record.
-- [ ] **P1-16 — Model project records.** Add the schema required by `projects/_template.md`. Dependencies: P1-04, P1-08. Check: parse the template and all project records.
-- [ ] **P1-17 — Model expertise records.** Add the schema required by `expertise/_template.md` and preserve evidence bullets. Dependencies: P1-02, P1-04. Check: parse every expertise record.
-- [ ] **P1-18 — Model language records.** Add the schema required by `languages/_template.md`. Dependencies: P1-04. Check: parse every language record.
-- [ ] **P1-19 — Model contact records.** Add the contact schema and an inclusion flag without logging values. Dependencies: P1-04. Check: caplog test contains no contact value.
-- [ ] **P1-20 — Model preferences.** Parse and serialize `preferences.md` separately from CV-eligible records. Dependencies: P1-03, P1-05. Check: round-trip `preferences.md` without exposing it as CV evidence.
+- [x] **P1-13 — Model experience records.** Add the schema required by `experience/_template.md`. Dependencies: P1-04, P1-08. Check: parse every experience record.
+- [x] **P1-14 — Model education records.** Add the schema required by `education/_template.md`. Dependencies: P1-04, P1-08. Check: parse every education record.
+- [x] **P1-15 — Model certification records.** Add the schema required by `certifications/_template.md`. Dependencies: P1-04, P1-08. Check: parse every certification record.
+- [x] **P1-16 — Model project records.** Add the schema required by `projects/_template.md`. Dependencies: P1-04, P1-08. Check: parse the template and all project records.
+- [x] **P1-17 — Model expertise records.** Add the schema required by `expertise/_template.md` and preserve evidence bullets. Dependencies: P1-02, P1-04. Check: parse every expertise record.
+- [x] **P1-18 — Model language records.** Add the schema required by `languages/_template.md`. Dependencies: P1-04. Check: parse every language record.
+- [x] **P1-19 — Model contact records.** Add the contact schema and an inclusion flag without logging values. Dependencies: P1-04. Check: caplog test contains no contact value.
+- [x] **P1-20 — Model preferences.** Parse and serialize `preferences.md` separately from CV-eligible records. Dependencies: P1-03, P1-05. Check: round-trip `preferences.md` without exposing it as CV evidence.
 - [ ] **P1-21 — List records.** Implement repository listing by kind with slug, title, validation state, and relative path. Dependencies: P1-13 through P1-20. Check: expected tracked record counts.
 - [ ] **P1-22 — Read one record.** Implement typed record retrieval by kind and slug. Dependencies: P1-21. Check: known record succeeds and unknown slug returns a typed not-found error.
 - [ ] **P1-23 — Validate the whole profile.** Return all source errors in one report instead of stopping at the first file. Dependencies: P1-21. Check: injected two-error fixture returns both errors.
