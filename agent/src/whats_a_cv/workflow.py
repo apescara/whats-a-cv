@@ -311,6 +311,8 @@ def validate_artifacts(files: dict[str, str], state: GraphState) -> list[str]:
         errors.append("unsafe LaTeX command")
     if "job-post.md" in files and "TODO" in files["job-post.md"]:
         errors.append("job post contains TODO")
+    if "job-post.md" in files and state.get("job", {}).get("metadata", {}).get("language") and "language:" not in files["job-post.md"]:
+        errors.append("job post metadata is incomplete")
     return errors
 
 
