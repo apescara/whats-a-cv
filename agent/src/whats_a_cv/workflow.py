@@ -299,6 +299,10 @@ def render_next_steps(state: GraphState) -> str:
     return "\n\n".join(f"## {title}\n\n" + "\n".join(f"- {item}" for item in items) for title, items in sections)
 
 
+def render_next_steps_file(state: GraphState) -> str:
+    return render_next_steps(state) + "\n"
+
+
 def validate_artifacts(files: dict[str, str], state: GraphState) -> list[str]:
     errors = [name for name in ("job-post.md", "cv.tex", "next-steps.mdx") if name not in files]
     if "cv.tex" in files and "\\documentclass" not in files["cv.tex"]:
