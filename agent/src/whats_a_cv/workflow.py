@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 import os
 import sqlite3
+import tempfile
+import shutil
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
@@ -15,6 +17,7 @@ from .repository.applications import ApplicationMetadata
 from .repository.atomic import atomic_write
 from .repository.kinds import RecordKind
 from .repository.service import list_records, load_record
+from .repository.applications import compile_latex
 
 RequirementCategory = Literal["must-have", "preferred", "responsibility", "keyword", "recruiter-concern"]
 REQUIREMENTS_PROMPT = "Extract only explicit requirements and preserve short source excerpts."
@@ -343,6 +346,27 @@ def finalize_application(root: Path, slug: str, files: dict[str, str], state: Gr
     temporary.rename(target)
     state["artifact_paths"] = [str(target.relative_to(root) / name) for name in files]
     return target
+
+
+def terra_review(state: GraphState, model: Any = None) -> list[str]:
+    if model is None or not model_settings().review_model:
+        return []
+    result = model.invoke(json.dumps(state.get("drafts", {})))
+    return [str(item) for item in (result if isinstance(result, list) else result.get("findings", []))]
+
+
+def compile_draft(root: Path, state: GraphState, files: dict[str, str]) -> GraphState:
+    applications = root / "applications"
+    applications.mkdir(parents=True, exist_ok=True)
+    path = Path(tempfile.mkdtemp(prefix="draft-", dir=applications))
+    try:
+        for name, content in files.items():
+            (path / name).write_text(content, encoding="utf-8")
+        result = compile_latex(root, path.name) if (path / "cv.tex").exists() else {"status": "error", "error": "cv.tex not found"}
+    finally:
+        shutil.rmtree(path, ignore_errors=True)
+    state["compilation"] = {"status": result.get("status", "error"), "pages": result.get("pages"), "errors": [result.get("error", "")] if result.get("error") else []}
+    return state
 
 
 def workflow_event(state: GraphState, node: str, status: str = "completed") -> dict[str, Any]:
