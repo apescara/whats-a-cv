@@ -5,6 +5,8 @@ services:
       target: development
     ports:
       - "127.0.0.1:3000:3000"
+    environment:
+      AGENT_INTERNAL_URL: http://agent:8000
     volumes:
       - .:/workspace:ro
       - ./web:/app

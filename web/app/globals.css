@@ -167,6 +167,41 @@ main h1 {
   line-height: var(--leading-tight);
 }
 
+.record-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-8);
+}
+
+.record-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.record-tab:hover,
+.record-tab:focus-visible {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.record-tab span:last-child {
+  min-width: 1.5rem;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
 @media (max-width: 48rem) {
   .app-shell {
     display: block;
