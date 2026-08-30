@@ -289,6 +289,10 @@ def render_cv(state: GraphState, template: str) -> str:
     return result
 
 
+def render_cv_source(state: GraphState, template_path: Path) -> str:
+    return render_cv(state, template_path.read_text(encoding="utf-8"))
+
+
 def render_next_steps(state: GraphState) -> str:
     steps = NextSteps.model_validate(state["drafts"]["next_steps"])
     sections = [("Fit assessment", [steps.assessment]), ("Evidence", steps.evidence_table), ("Gaps", steps.gaps), ("Interview themes", steps.interview_themes), ("Questions", steps.questions), ("Study plan", steps.study_plan), ("Risks and timing", steps.risks + [steps.timing])]
