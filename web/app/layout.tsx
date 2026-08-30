@@ -19,7 +19,7 @@ export default function RootLayout({
   const navigation = [
     ["Home", "/"],
     ["Profile", "/profile"],
-    ["New record", "/create-cv"],
+    ["New application", "/create-cv"],
     ["Applications", "/applications"],
     ["Assistant", "/assistant"],
     ["Settings", "/settings"],

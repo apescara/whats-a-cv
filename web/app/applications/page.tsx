@@ -11,6 +11,7 @@ export default function ApplicationsPage() {
   return <section>
     <p className="eyebrow">Workspace</p><h1>Applications</h1>
     <p className="lede">Review each tailored application, its source job post, CV, PDF, and preparation notes.</p>
+    <a className="button button-primary" href="/create-cv">New application</a>
     {error && <p role="alert">{error}</p>}
     {!applications && !error && <p role="status">Loading applications…</p>}
     {applications?.length === 0 && <p className="empty-state">No applications yet.</p>}

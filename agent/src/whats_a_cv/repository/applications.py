@@ -8,8 +8,9 @@ import subprocess
 import tempfile
 import time
 from pathlib import Path
-from urllib.parse import urlparse
-from urllib.request import Request, urlopen
+from urllib.error import HTTPError
+from urllib.parse import urljoin, urlparse
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -189,16 +190,32 @@ def _public_host(hostname: str) -> bool:
     return all(not ipaddress.ip_address(address).is_private and not ipaddress.ip_address(address).is_loopback and not ipaddress.ip_address(address).is_link_local for address in addresses)
 
 
+class _NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, request, fp, code, msg, headers, newurl):
+        return None
+
+
 def fetch_job_url(url: str, *, timeout: float = 8, max_bytes: int = 1_000_000) -> tuple[str, str]:
-    parsed = urlparse(url)
-    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
-        raise ValueError("job URL must use http or https")
-    if not _public_host(parsed.hostname):
-        raise ValueError("job URL points to a private network")
-    request = Request(url, headers={"User-Agent": "whats-a-cv/1.0"})
-    with urlopen(request, timeout=timeout) as response:
-        content_type = response.headers.get_content_type()
-        data = response.read(max_bytes + 1)
+    opener = build_opener(_NoRedirect)
+    for _ in range(4):
+        parsed = urlparse(url)
+        if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+            raise ValueError("job URL must use http or https")
+        if not _public_host(parsed.hostname):
+            raise ValueError("job URL points to a private network")
+        request = Request(url, headers={"User-Agent": "whats-a-cv/1.0"})
+        try:
+            response = opener.open(request, timeout=timeout)
+        except HTTPError as error:
+            if error.code not in {301, 302, 303, 307, 308} or not error.headers.get("Location"):
+                raise
+            url = urljoin(url, error.headers["Location"])
+            continue
+        with response:
+            data = response.read(max_bytes + 1)
+        break
+    else:
+        raise ValueError("job URL redirected too many times")
     if len(data) > max_bytes:
         raise ValueError("job page is too large")
     charset = response.headers.get_content_charset() or "utf-8"

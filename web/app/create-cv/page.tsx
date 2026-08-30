@@ -17,7 +17,7 @@ export default function CreateCvPage() {
       <label>Public job URL<input type="url" value={draft.source_url} onChange={(event) => update("source_url", event.target.value)} placeholder="https://…" /></label>
       <button className="button button-secondary" type="button" onClick={() => void fetchUrl()} disabled={!draft.source_url}>Fetch URL</button>
       <div className="editor-field-grid"><label>Company<input value={draft.company} onChange={(event) => update("company", event.target.value)} required /></label><label>Role<input value={draft.role} onChange={(event) => update("role", event.target.value)} required /></label><label>Location<input value={draft.location} onChange={(event) => update("location", event.target.value)} /></label><label>Language<input value={draft.language} onChange={(event) => update("language", event.target.value)} /></label></div>
-      <button className="button button-primary" type="submit">Save draft</button>{message && <p role="status">{message}</p>}
+      <button className="button button-primary" type="submit">Build application</button>{message && <p role="status">{message}</p>}
     </form>
   </section>;
 }

@@ -1,4 +1,7 @@
+from io import BytesIO
 from pathlib import Path
+from urllib.error import HTTPError
+from urllib.request import Request
 
 import pytest
 
@@ -60,3 +63,16 @@ def test_public_url_fetch_rejects_localhost() -> None:
     from whats_a_cv.repository.applications import fetch_job_url
     with pytest.raises(ValueError, match="private network"):
         fetch_job_url("http://127.0.0.1/job")
+
+
+def test_public_url_fetch_rechecks_redirect_targets(monkeypatch) -> None:
+    from whats_a_cv.repository import applications
+
+    class Opener:
+        def open(self, request: Request, timeout: float):
+            raise HTTPError(request.full_url, 302, "Found", {"Location": "http://127.0.0.1/private"}, BytesIO())
+
+    monkeypatch.setattr(applications, "build_opener", lambda _handler: Opener())
+    monkeypatch.setattr(applications, "_public_host", lambda host: host != "127.0.0.1")
+    with pytest.raises(ValueError, match="private network"):
+        applications.fetch_job_url("https://public.example/job")
