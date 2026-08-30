@@ -3,7 +3,7 @@ from .locations import SourceLocation
 from .frontmatter import parse_frontmatter, serialize_frontmatter, split_frontmatter
 from .slugs import validate_slug
 from .dates import validate_date
-from .paths import record_path
+from .paths import proposal_path, record_path
 from .atomic import atomic_write
 from .diffs import unified_diff
 from .records import (
@@ -23,6 +23,7 @@ __all__ = [
     "validate_slug",
     "validate_date",
     "record_path",
+    "proposal_path",
     "atomic_write",
     "unified_diff",
     "Record", "ExperienceRecord", "EducationRecord", "CertificationRecord",

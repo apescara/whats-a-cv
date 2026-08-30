@@ -40,9 +40,15 @@ def load_record(root: Path, kind: RecordKind | str, slug: str) -> Record:
     path = root / kind.value / f"{slug}.md"
     if not path.is_file() or path.is_symlink() or not path.resolve().is_relative_to((root / kind.value).resolve()):
         raise RecordNotFoundError(f"record not found: {kind.value}/{slug}")
-    data = parse_frontmatter(path.read_text(encoding="utf-8"), str(path))
-    body = split_frontmatter(path.read_text(encoding="utf-8"))[1]
-    return MODELS[kind].model_validate({**data, "slug": slug, "body": body})
+    try:
+        text = path.read_text(encoding="utf-8")
+        data = parse_frontmatter(text, str(path))
+        body = split_frontmatter(text)[1]
+        return MODELS[kind].model_validate({**data, "slug": slug, "body": body})
+    except Exception:
+        if kind is RecordKind.CONTACT:
+            raise ValueError("invalid contact record") from None
+        raise
 
 
 def list_records(root: Path, kind: RecordKind | str) -> list[RecordSummary]:
@@ -58,7 +64,8 @@ def list_records(root: Path, kind: RecordKind | str) -> list[RecordSummary]:
             title = next((getattr(record, field) for field in ("role", "name", "qualification", "language", "type") if getattr(record, field, "")), slug)
             result.append(RecordSummary(slug, title, True, str(path.relative_to(root))))
         except Exception as error:
-            result.append(RecordSummary(slug, slug, False, str(path.relative_to(root)), str(error)))
+            message = "invalid contact record" if kind is RecordKind.CONTACT else str(error)
+            result.append(RecordSummary(slug, slug, False, str(path.relative_to(root)), message))
     return result
 
 

@@ -92,7 +92,7 @@ Status conventions:
 - [x] **P1-29 — Expose proposal actions.** Add create, inspect, approve, and reject proposal endpoints. Dependencies: P1-25 through P1-27. Check: API lifecycle test.
 - [x] **P1-30 — Expose MCP read tools.** Add `list_records` and `read_record` through one local MCP server. Dependencies: P1-28. Check: MCP tool contract test with no network dependency.
 - [x] **P1-31 — Expose MCP proposal tools.** Add proposal creation and status tools, but no direct write tool. Dependencies: P1-29, P1-30. Check: MCP manifest contains no unrestricted filesystem tool.
-- [ ] **P1-32 — Repository security review.** **Terra review.** Audit path handling, atomic writes, contact redaction, and proposal races; fix only demonstrated issues and add regression tests. Dependencies: P1-01 through P1-31. Check: full agent test suite.
+- [x] **P1-32 — Repository security review.** **Terra review.** Audit path handling, atomic writes, contact redaction, and proposal races; fix only demonstrated issues and add regression tests. Dependencies: P1-01 through P1-31. Check: full agent test suite.
 
 ## Phase 2 — Profile workspace and design system
 

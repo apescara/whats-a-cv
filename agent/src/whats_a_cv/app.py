@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from .repository import ProposalStore, RecordKind, RecordNotFoundError, list_records, load_record
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
-PROPOSALS = ProposalStore(REPOSITORY_ROOT / ".whats-a-cv" / "state.db")
+PROPOSALS = ProposalStore(REPOSITORY_ROOT / ".whats-a-cv" / "state.db", REPOSITORY_ROOT)
 
 
 class HealthResponse(BaseModel):
@@ -43,10 +43,13 @@ class ProposalRequest(BaseModel):
 
 @app.post("/proposals")
 def create_proposal(request: ProposalRequest):
-    target = (REPOSITORY_ROOT / request.target_path).resolve()
-    if not target.is_relative_to(REPOSITORY_ROOT) or target.suffix != ".md":
+    target = Path(request.target_path)
+    if target.is_absolute():
         raise HTTPException(status_code=422, detail="invalid target path")
-    return {"id": PROPOSALS.create(target, request.proposed_content, REPOSITORY_ROOT)}
+    try:
+        return {"id": PROPOSALS.create(target, request.proposed_content)}
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
 
 
 @app.get("/proposals/{proposal_id}")
