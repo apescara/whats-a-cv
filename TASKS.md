@@ -107,7 +107,7 @@ Status conventions:
 - [x] **P2-09 — Add education editor.** Implement fields matching the education template. Dependencies: P2-07, P1-14. Check: edit fixture passes API validation.
 - [x] **P2-10 — Add certification editor.** Implement fields matching the certification template. Dependencies: P2-07, P1-15. Check: edit fixture passes API validation.
 - [x] **P2-11 — Add project editor.** Implement context, contributions, outcomes, and skills fields. Dependencies: P2-07, P1-16. Check: edit fixture passes API validation.
-- [ ] **P2-12 — Add expertise editor.** Implement name, category, last-used, and evidence bullets. Dependencies: P2-07, P1-17. Check: edit fixture preserves evidence bullets.
+- [x] **P2-12 — Add expertise editor.** Implement name, category, last-used, and evidence bullets. Dependencies: P2-07, P1-17. Check: edit fixture preserves evidence bullets.
 - [ ] **P2-13 — Add language editor.** Implement language and proficiency fields. Dependencies: P2-07, P1-18. Check: edit fixture passes API validation.
 - [ ] **P2-14 — Add private contact editor.** Mask values by default and show inclusion status explicitly. Dependencies: P2-07, P1-19. Check: browser test confirms value is not present before reveal.
 - [ ] **P2-15 — Add preferences editor.** Keep preferences visually separate from CV evidence. Dependencies: P2-07, P1-20. Check: UI labels state preferences are not copied automatically.

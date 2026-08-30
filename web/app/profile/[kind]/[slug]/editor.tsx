@@ -24,18 +24,22 @@ const projectFields: Field[] = [
   { name: "name", label: "Name" }, { name: "role", label: "Role" }, { name: "url", label: "URL" },
   { name: "start", label: "Start", type: "date" }, { name: "end", label: "End", type: "date" },
 ];
+const expertiseFields: Field[] = [
+  { name: "name", label: "Name" }, { name: "category", label: "Category" }, { name: "last_used", label: "Last used", type: "date" },
+  { name: "evidence", label: "Evidence (JSON)" },
+];
 
 function markdown(values: RecordData, recordFields: Field[]) {
   const header = recordFields.map(({ name }) => `${name}: ${JSON.stringify(values[name] || "")}`).join("\n");
   return `---\n${header}\n---\n${String(values.body || "")}`;
 }
 
-export default function RecordEditor({ record, kind }: { record: RecordData; kind: "experience" | "education" | "certifications" | "projects" }) {
-  const recordFields = kind === "education" ? educationFields : kind === "certifications" ? certificationFields : kind === "projects" ? projectFields : experienceFields;
+export default function RecordEditor({ record, kind }: { record: RecordData; kind: "experience" | "education" | "certifications" | "projects" | "expertise" }) {
+  const recordFields = kind === "education" ? educationFields : kind === "certifications" ? certificationFields : kind === "projects" ? projectFields : kind === "expertise" ? expertiseFields : experienceFields;
   const [values, setValues] = useState(record);
   const [message, setMessage] = useState("");
 
-  const update = (name: string, value: string) => setValues((current) => ({ ...current, [name]: value }));
+  const update = (name: string, value: string) => setValues((current) => ({ ...current, [name]: name === "evidence" ? (() => { try { return JSON.parse(value); } catch { return value; } })() : value }));
   const submit = async () => {
     const response = await fetch("/api/proposals", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ target_path: `${kind}/${String(record.slug)}.md`, proposed_content: markdown(values, recordFields) }) });
     setMessage(response.ok ? "Proposal created for review." : "Could not create proposal.");
@@ -43,7 +47,7 @@ export default function RecordEditor({ record, kind }: { record: RecordData; kin
 
   return <form className="record-editor" onSubmit={(event) => { event.preventDefault(); void submit(); }}>
     <h2>Edit {kind}</h2>
-    {recordFields.map(({ name, label, type }) => <label key={name}>{label}<input type={type || "text"} value={String(values[name] || "")} onChange={(event) => update(name, event.target.value)} /></label>)}
+    {recordFields.map(({ name, label, type }) => <label key={name}>{label}<input type={type || "text"} value={name === "evidence" ? JSON.stringify(values[name] || []) : String(values[name] || "")} onChange={(event) => update(name, event.target.value)} /></label>)}
     <label>Markdown details<textarea rows={10} value={String(values.body || "")} onChange={(event) => update("body", event.target.value)} /></label>
     <button type="submit">Submit proposal</button>
     {message && <p role="status">{message}</p>}
