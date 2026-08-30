@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { components } from "../../../../lib/api.generated";
-import ExperienceEditor from "./editor";
+import RecordEditor from "./editor";
 
 type RecordKind = components["schemas"]["RecordKind"];
 type RecordData = { slug: string; body?: string; relative_path?: string; [key: string]: unknown };
@@ -42,7 +42,7 @@ export default function RecordDetailPage({ params }: { params: Promise<{ kind: s
         {fields.map(([key, value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{typeof value === "string" ? value : JSON.stringify(value)}</dd></div>)}
       </dl>
       {record.body && <pre className="markdown-preview">{String(record.body)}</pre>}
-      {record.role ? <ExperienceEditor record={record} /> : null}
+      {record.role ? <RecordEditor record={record} kind="experience" /> : record.qualification ? <RecordEditor record={record} kind="education" /> : null}
     </article>
   );
 }
