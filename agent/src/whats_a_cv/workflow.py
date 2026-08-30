@@ -163,3 +163,7 @@ class CheckpointStore:
         with sqlite3.connect(self.path) as db:
             row = db.execute("SELECT state FROM checkpoints WHERE thread_id = ?", (thread_id,)).fetchone()
         return state_from_json(row[0]) if row else None
+
+
+def checkpoint_store(root: Path) -> CheckpointStore:
+    return CheckpointStore(root / ".whats-a-cv" / "state.db")
