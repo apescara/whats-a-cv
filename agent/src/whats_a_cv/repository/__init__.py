@@ -14,7 +14,7 @@ from .service import list_records, load_record, validate_profile, RecordNotFound
 from .proposals import ProposalStore, content_hash
 from .preferences import read_preferences, serialize_preferences
 from .applications import (
-    ApplicationBundle, ApplicationMetadata, ApplicationSummary, ArtifactPaths,
+    ApplicationBundle, ApplicationMetadata, ApplicationSummary, ArtifactPaths, JobDraft,
     compile_latex, fetch_job_url, list_applications, normalize_job_html,
     read_application, read_artifact, render_inert_markdown, application_metadata_proposal,
 )
@@ -35,7 +35,7 @@ __all__ = [
     "ProjectRecord", "ExpertiseRecord", "LanguageRecord", "ContactRecord", "Preferences",
     "list_records", "load_record", "validate_profile", "RecordNotFoundError",
     "ProposalStore", "content_hash", "read_preferences", "serialize_preferences",
-    "ArtifactPaths", "ApplicationMetadata", "ApplicationSummary", "ApplicationBundle",
+    "ArtifactPaths", "ApplicationMetadata", "ApplicationSummary", "ApplicationBundle", "JobDraft",
     "list_applications", "read_application", "read_artifact", "render_inert_markdown",
     "fetch_job_url", "normalize_job_html", "compile_latex",
     "application_metadata_proposal",

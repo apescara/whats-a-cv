@@ -139,7 +139,7 @@ Status conventions:
 - [x] **P3-16 — Normalize fetched content.** Extract readable text, preserve the original URL/retrieval date, and strip active content. Dependencies: P3-15. Check: hostile HTML fixture becomes inert text.
 - [x] **P3-17 — Compile LaTeX safely.** Invoke `latexmk` with fixed arguments, explicit working directory, timeout, and captured output; never construct a shell string. Dependencies: P3-02. Check: compile a fixture and reject an out-of-root path.
 - [x] **P3-18 — Expose compilation.** Add compile/status API endpoints returning PDF path, page count, warnings, and sanitized errors. Dependencies: P3-17. Check: success and deliberate-failure API tests.
-- [ ] **P3-19 — Add compile UI.** Trigger compilation, stream/poll state, preview success, and show actionable errors. Dependencies: P3-09, P3-18. Check: browser test covers one success and one error.
+- [x] **P3-19 — Add compile UI.** Trigger compilation, stream/poll state, preview success, and show actionable errors. Dependencies: P3-09, P3-18. Check: browser test covers one success and one error.
 - [ ] **P3-20 — Applications workspace review.** **Terra review.** Audit untrusted-content rendering, URL fetching, path boundaries, and compilation. Dependencies: P3-01 through P3-19. Check: full web and agent tests.
 
 ## Phase 4 — Luna-backed LangGraph application workflow
