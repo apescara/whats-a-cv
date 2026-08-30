@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
+    "generate:api": "node scripts/generate-api-client.mjs",
     "dev": "next dev",
     "lint": "eslint .",
     "start": "next start"
@@ -19,6 +20,7 @@
     "@types/react-dom": "19.1.9",
     "eslint": "9.36.0",
     "eslint-config-next": "16.3.3",
+    "openapi-typescript": "^7.13.0",
     "typescript": "5.9.2"
   }
 }
