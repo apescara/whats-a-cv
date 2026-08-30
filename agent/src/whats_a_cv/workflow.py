@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from .repository import ApplicationMetadata, RecordKind, atomic_write, list_records, load_record
 
 RequirementCategory = Literal["must-have", "preferred", "responsibility", "keyword", "recruiter-concern"]
+REQUIREMENTS_PROMPT = "Extract only explicit requirements and preserve short source excerpts."
 
 
 class ModelSettings(BaseModel):
@@ -184,7 +185,7 @@ def ingest_job(state: GraphState, root: Path, job: dict[str, Any]) -> GraphState
 
 def extract_requirements(state: GraphState, model: Any) -> GraphState:
     prompt = state["job"]
-    result = model.invoke(json.dumps(prompt))
+    result = model.invoke(REQUIREMENTS_PROMPT + "\n" + json.dumps(prompt))
     result = result if isinstance(result, RequirementSet) else RequirementSet.model_validate(result)
     state["requirements"] = result.model_dump()
     return state
