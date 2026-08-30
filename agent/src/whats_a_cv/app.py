@@ -1,4 +1,5 @@
 import os
+from datetime import date
 from typing import Literal
 
 from pathlib import Path
@@ -11,6 +12,7 @@ from .repository import (
     ApplicationMetadata, ProposalStore, RecordKind, RecordNotFoundError,
     list_applications, list_records, load_record, read_application,
     read_artifact, application_metadata_proposal,
+    JobDraft, fetch_job_url, compile_latex,
 )
 from .repository.service import related_expertise
 
@@ -65,6 +67,24 @@ def application(slug: str, include_notes: bool = False):
         raise HTTPException(status_code=422, detail=str(error)) from error
 
 
+COMPILE_RESULTS: dict[str, dict] = {}
+
+
+@app.post("/applications/{slug}/compile")
+def compile_application(slug: str):
+    try:
+        result = compile_latex(REPOSITORY_ROOT, slug)
+    except (FileNotFoundError, ValueError) as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    COMPILE_RESULTS[slug] = result
+    return result
+
+
+@app.get("/applications/{slug}/compile")
+def compilation_status(slug: str):
+    return COMPILE_RESULTS.get(slug, {"status": "not_started"})
+
+
 @app.get("/applications/{slug}/{filename}")
 def application_artifact(slug: str, filename: str):
     try:
@@ -98,6 +118,31 @@ def propose_application_notes(slug: str, request: ApplicationNotesRequest):
     try:
         return {"id": application_metadata_proposal(PROPOSALS, REPOSITORY_ROOT, slug, "notes.md", request.notes)}
     except (FileNotFoundError, ValueError) as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+class JobDraftRequest(BaseModel):
+    text: str
+    metadata: ApplicationMetadata
+
+
+@app.post("/job-draft")
+def save_job_draft(request: JobDraftRequest):
+    if not request.text.strip():
+        raise HTTPException(status_code=422, detail="job text is required")
+    return JobDraft(text=request.text, metadata=request.metadata, source_url=request.metadata.source_url, retrieved=request.metadata.retrieved)
+
+
+class JobUrlRequest(BaseModel):
+    url: str
+
+
+@app.post("/job-url")
+def fetch_job(request: JobUrlRequest):
+    try:
+        text, url = fetch_job_url(request.url)
+        return {"text": text, "source_url": url, "retrieved": date.today().isoformat()}
+    except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
 

@@ -54,3 +54,9 @@ def test_legacy_next_steps_fallback_and_mdx_preference(tmp_path: Path) -> None:
 
 def test_hostile_html_is_inert_text() -> None:
     assert "<script" not in normalize_job_html('<h1>Role</h1><script>alert(1)</script>Text')
+
+
+def test_public_url_fetch_rejects_localhost() -> None:
+    from whats_a_cv.repository.applications import fetch_job_url
+    with pytest.raises(ValueError, match="private network"):
+        fetch_job_url("http://127.0.0.1/job")
