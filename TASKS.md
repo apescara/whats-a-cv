@@ -63,7 +63,7 @@ Status conventions:
 
 - [x] **P1-01 — Define record kinds.** Add a closed enum mapping contact, experience, education, certifications, projects, expertise, and languages to approved roots. Dependencies: P0-16. Check: unit test rejects an unknown kind.
 - [x] **P1-02 — Define source locations.** Add a typed source-location model containing relative path and optional section heading. Dependencies: P1-01. Check: Pydantic round-trip test.
-- [ ] **P1-03 — Split frontmatter safely.** Implement a parser that separates YAML frontmatter and Markdown body without interpreting body content. Dependencies: P1-01. Check: tests for valid, missing, and unclosed frontmatter.
+- [x] **P1-03 — Split frontmatter safely.** Implement a parser that separates YAML frontmatter and Markdown body without interpreting body content. Dependencies: P1-01. Check: tests for valid, missing, and unclosed frontmatter.
 - [ ] **P1-04 — Parse frontmatter.** Add YAML parsing with mapping-only output and actionable errors. Dependencies: P1-03. Check: malformed YAML test contains file context.
 - [ ] **P1-05 — Serialize records.** Serialize frontmatter plus body with stable field ordering and a final newline. Dependencies: P1-04. Check: snapshot one template round trip.
 - [ ] **P1-06 — Preserve record content.** Add corpus round-trip tests proving parse/serialize/parse semantic equality for every tracked source record. Dependencies: P1-05. Check: `cd agent && uv run pytest tests/repository/test_round_trip.py`.
