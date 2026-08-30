@@ -261,6 +261,18 @@ def evidence_review(state: GraphState, decision: ReviewDecision | None = None) -
     return state
 
 
+def continue_after_evidence(state: GraphState) -> GraphState:
+    """Produce a safe local draft when no model is configured yet."""
+    candidates = EvidenceSet.model_validate(state.get("evidence", {})).candidates
+    approved = _approved_ids(state)
+    claims = [DraftClaim(text=item.excerpt, evidence_ids=[str(index)]) for index, item in enumerate(candidates) if not approved or str(index) in approved]
+    role = state["job"]["metadata"].get("role", "this role")
+    state["drafts"] = {"cv": DraftBundle(summary=f"Candidate targeted for {role}.", claims=claims, skills=[]).model_dump()}
+    state["events"] = state.get("events", []) + [{"thread_id": state["thread_id"], "node": "draft_cv", "status": "completed"}]
+    state["stage"] = "generation_complete"
+    return state
+
+
 def _approved_ids(state: GraphState) -> set[str]:
     return set(state.get("decisions", {}).get("evidence", {}).get("evidence_ids", []))
 

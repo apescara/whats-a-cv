@@ -1,4 +1,4 @@
-from whats_a_cv.workflow import CheckpointStore, draft_requirements, evidence_review, new_state, retrieve_evidence
+from whats_a_cv.workflow import CheckpointStore, ReviewDecision, continue_after_evidence, draft_requirements, evidence_review, new_state, retrieve_evidence
 from whats_a_cv.app import WorkflowStartRequest, workflow_start
 from whats_a_cv.repository import ApplicationMetadata
 
@@ -31,3 +31,13 @@ def test_retrieval_matches_canonical_expertise_and_experience_lines(tmp_path):
     retrieve_evidence(state, tmp_path)
     candidates = state["evidence"]["candidates"]
     assert candidates and candidates[0]["source_path"] == "expertise/python.md"
+
+
+def test_approved_evidence_advances_to_a_draft():
+    state = new_state("draft-thread")
+    state["job"] = {"metadata": {"role": "Data Engineer"}}
+    state["evidence"] = {"candidates": [{"requirement_id": "req-1", "source_path": "expertise/python.md", "excerpt": "Python", "relevance_reason": "match", "confidence": 1}]}
+    evidence_review(state, ReviewDecision(action="approve", evidence_ids=["0"]))
+    continue_after_evidence(state)
+    assert state["stage"] == "generation_complete"
+    assert state["drafts"]["cv"]["claims"][0]["evidence_ids"] == ["0"]

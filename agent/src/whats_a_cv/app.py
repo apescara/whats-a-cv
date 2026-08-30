@@ -16,8 +16,8 @@ from .repository import (
     JobDraft, fetch_job_url, compile_latex,
 )
 from .repository.service import related_expertise
-from .workflow import (CheckpointStore, ReviewDecision, draft_requirements, evidence_review,
-                       ingest_job, new_state, checkpoint_store, retrieve_evidence, workflow_event)
+from .workflow import (CheckpointStore, ReviewDecision, continue_after_evidence, draft_requirements,
+                       evidence_review, ingest_job, new_state, checkpoint_store, retrieve_evidence, workflow_event)
 
 def repository_root() -> Path:
     return Path(os.environ.get("WHATS_A_CV_REPOSITORY", Path(__file__).resolve().parents[3])).resolve()
@@ -174,6 +174,8 @@ def workflow_resume(thread_id: str, request: WorkflowResumeRequest):
         raise HTTPException(status_code=404, detail="workflow not found")
     if state.get("interrupt") == "evidence_review":
         evidence_review(state, request.decision)
+        if request.decision and request.decision.action == "approve":
+            continue_after_evidence(state)
     CHECKPOINTS.save(state)
     return state
 
