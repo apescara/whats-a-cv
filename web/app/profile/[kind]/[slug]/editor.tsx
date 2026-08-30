@@ -28,14 +28,17 @@ const expertiseFields: Field[] = [
   { name: "name", label: "Name" }, { name: "category", label: "Category" }, { name: "last_used", label: "Last used", type: "date" },
   { name: "evidence", label: "Evidence (JSON)" },
 ];
+const languageFields: Field[] = [
+  { name: "language", label: "Language" }, { name: "proficiency", label: "Proficiency" }, { name: "certification", label: "Certification" },
+];
 
 function markdown(values: RecordData, recordFields: Field[]) {
   const header = recordFields.map(({ name }) => `${name}: ${JSON.stringify(values[name] || "")}`).join("\n");
   return `---\n${header}\n---\n${String(values.body || "")}`;
 }
 
-export default function RecordEditor({ record, kind }: { record: RecordData; kind: "experience" | "education" | "certifications" | "projects" | "expertise" }) {
-  const recordFields = kind === "education" ? educationFields : kind === "certifications" ? certificationFields : kind === "projects" ? projectFields : kind === "expertise" ? expertiseFields : experienceFields;
+export default function RecordEditor({ record, kind }: { record: RecordData; kind: "experience" | "education" | "certifications" | "projects" | "expertise" | "languages" }) {
+  const recordFields = kind === "education" ? educationFields : kind === "certifications" ? certificationFields : kind === "projects" ? projectFields : kind === "expertise" ? expertiseFields : kind === "languages" ? languageFields : experienceFields;
   const [values, setValues] = useState(record);
   const [message, setMessage] = useState("");
 
