@@ -41,13 +41,16 @@ export default function RecordEditor({ record, kind }: { record: RecordData; kin
   const recordFields = kind === "education" ? educationFields : kind === "certifications" ? certificationFields : kind === "projects" ? projectFields : kind === "expertise" ? expertiseFields : kind === "languages" ? languageFields : experienceFields;
   const [values, setValues] = useState(record);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [diff, setDiff] = useState("");
   const [proposalId, setProposalId] = useState<number | null>(null);
 
   const update = (name: string, value: string) => setValues((current) => ({ ...current, [name]: name === "evidence" ? (() => { try { return JSON.parse(value); } catch { return value; } })() : value }));
   const submit = async () => {
+    setError("");
+    setMessage("");
     const response = await fetch("/api/proposals", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ target_path: `${kind}/${String(record.slug)}.md`, proposed_content: markdown(values, recordFields) }) });
-    if (!response.ok) { setMessage("Could not create proposal."); return; }
+    if (!response.ok) { setError("Could not create a proposal. Check your connection and try again."); return; }
     const { id } = await response.json() as { id: number };
     setProposalId(id);
     const review = await fetch(`/api/proposals/${id}`);
@@ -66,10 +69,11 @@ export default function RecordEditor({ record, kind }: { record: RecordData; kin
     <section className="record-editor-fields">
       <div className="editor-heading"><h2>Edit {kind}</h2><p>Review your changes before they are saved.</p></div>
       <div className="editor-field-grid">
-        {recordFields.map(({ name, label, type }) => <label key={name}>{label}<input type={type || "text"} value={name === "evidence" ? JSON.stringify(values[name] || []) : String(values[name] || "")} onChange={(event) => update(name, event.target.value)} /></label>)}
+        {recordFields.map(({ name, label, type }) => <label key={name}>{label}<input name={name} autoComplete="off" type={type || "text"} value={name === "evidence" ? JSON.stringify(values[name] || []) : String(values[name] || "")} onChange={(event) => update(name, event.target.value)} /></label>)}
       </div>
       <label className="editor-details">Markdown details<textarea rows={10} value={String(values.body || "")} onChange={(event) => update("body", event.target.value)} /></label>
       <div className="editor-actions"><button type="submit">Review changes</button></div>
+      {error && <p role="alert">{error}</p>}
       {message && <p role="status">{message}</p>}
       {diff && <pre className="markdown-preview" aria-label="Proposal diff">{diff}</pre>}
       {proposalId !== null && <div className="editor-actions"><button type="button" onClick={() => void decide("approve")}>Approve</button> <button className="button-secondary" type="button" onClick={() => void decide("reject")}>Reject</button></div>}

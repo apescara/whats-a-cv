@@ -7,6 +7,7 @@
     "generate:api": "node scripts/generate-api-client.mjs",
     "dev": "next dev",
     "lint": "eslint .",
+    "test:e2e": "playwright test",
     "start": "next start"
   },
   "dependencies": {
@@ -18,6 +19,7 @@
     "@types/node": "24.5.2",
     "@types/react": "19.1.13",
     "@types/react-dom": "19.1.9",
+    "@playwright/test": "^1.62.1",
     "eslint": "9.36.0",
     "eslint-config-next": "16.3.3",
     "openapi-typescript": "^7.13.0",
