@@ -1,14 +1,78 @@
 :root {
   color-scheme: light;
-  font-family: Arial, sans-serif;
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1f5f9;
+  --color-border: #cbd5e1;
+  --color-border-strong: #94a3b8;
+  --color-text: #172033;
+  --color-text-muted: #526176;
+  --color-accent: #2457a6;
+  --color-accent-hover: #1d4585;
+  --color-on-accent: #ffffff;
+
+  --color-strong: #166534;
+  --color-strong-surface: #dcfce7;
+  --color-partial: #92400e;
+  --color-partial-surface: #fef3c7;
+  --color-gap: #b91c1c;
+  --color-gap-surface: #fee2e2;
+  --color-unverified: #475569;
+  --color-unverified-surface: #e2e8f0;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-pill: 999px;
+  --focus-ring: 0 0 0 3px #bfdbfe;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
 }
 
 main {
   margin: 4rem auto;
   max-width: 48rem;
   padding: 0 1.5rem;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
 }
