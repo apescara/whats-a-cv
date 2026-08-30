@@ -97,7 +97,7 @@ Status conventions:
 ## Phase 2 — Profile workspace and design system
 
 - [x] **P2-01 — Add design tokens.** Define light-theme CSS variables for typography, spacing, color, radius, focus, and Strong/Partial/Gap/Unverified states. Dependencies: P0-09. Check: production web build.
-- [ ] **P2-02 — Build the app shell.** Add sidebar, header, main landmark, responsive content region, and skip link. Dependencies: P2-01. Check: keyboard focus reaches skip link and navigation.
+- [x] **P2-02 — Build the app shell.** Add sidebar, header, main landmark, responsive content region, and skip link. Dependencies: P2-01. Check: keyboard focus reaches skip link and navigation.
 - [ ] **P2-03 — Add primary routes.** Create empty routes for Profile, Create CV, Applications, Assistant, Lab, and Settings. Dependencies: P2-02. Check: every sidebar link returns 200.
 - [ ] **P2-04 — Generate the API client.** Generate TypeScript request types from FastAPI OpenAPI and add a repeatable npm command. Dependencies: P1-29, P2-03. Check: generated client has no manual edits and web type-check passes.
 - [ ] **P2-05 — Add record-kind navigation.** Add Profile tabs/counts for every record kind. Dependencies: P1-28, P2-04. Check: counts match API fixtures.
