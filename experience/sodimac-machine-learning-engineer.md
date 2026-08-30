@@ -1,9 +1,9 @@
 ---
 company: "Sodimac"
 role: "Machine Learning Engineer"
-employment_type: ""
+employment_type: "full time"
 location: "Chile"
-start: "2025-07"
+start: "2025-07-21"
 end: "present"
 ---
 

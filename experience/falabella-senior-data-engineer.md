@@ -3,8 +3,8 @@ company: "Falabella Tecnologias Corporativas"
 role: "Senior Data Engineer"
 employment_type: ""
 location: "Chile"
-start: "2023-07"
-end: "2023-10"
+start: "2023-07-01"
+end: "2023-10-01"
 ---
 
 # Senior Data Engineer — Falabella Tecnologias Corporativas

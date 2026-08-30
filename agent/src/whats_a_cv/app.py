@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from .repository import ProposalStore, RecordKind, RecordNotFoundError, list_records, load_record
+from .repository.service import related_expertise
 
 def repository_root() -> Path:
     return Path(os.environ.get("WHATS_A_CV_REPOSITORY", Path(__file__).resolve().parents[3])).resolve()
@@ -36,7 +37,10 @@ def records(kind: RecordKind):
 @app.get("/records/{kind}/{slug}")
 def record(kind: RecordKind, slug: str):
     try:
-        return load_record(REPOSITORY_ROOT, kind, slug)
+        loaded_record = load_record(REPOSITORY_ROOT, kind, slug)
+        result = loaded_record.model_dump()
+        result["related_expertise"] = related_expertise(REPOSITORY_ROOT, loaded_record)
+        return result
     except RecordNotFoundError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
 

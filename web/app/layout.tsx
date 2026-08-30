@@ -1,9 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "What's a CV?",
   description: "A local-first workspace for targeted job applications.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -12,11 +17,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const navigation = [
+    ["Home", "/"],
     ["Profile", "/profile"],
-    ["Create CV", "/create-cv"],
+    ["New record", "/create-cv"],
     ["Applications", "/applications"],
     ["Assistant", "/assistant"],
-    ["Lab", "/lab"],
     ["Settings", "/settings"],
   ];
 
@@ -45,8 +50,8 @@ export default function RootLayout({
           </aside>
           <div className="app-content">
             <header className="app-header">
-              <p className="eyebrow">Candidate workspace</p>
-              <span className="header-status">Local-first</span>
+              <p>Your private career workspace</p>
+              <span className="header-status">Your data stays local</span>
             </header>
             <main id="main-content">{children}</main>
           </div>

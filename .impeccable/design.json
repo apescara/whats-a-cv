@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-30T00:00:00-04:00",
+  "title": "Design System: What's a CV?",
+  "extensions": {
+    "colorMeta": {
+      "background": { "role": "neutral", "displayName": "Warm Canvas", "canonical": "#f8f7f4", "tonalRamp": ["#1f1f1d", "#4b4a45", "#77756e", "#a7a49b", "#d4d1c8", "#e9e6de", "#f8f7f4", "#fffefa"] },
+      "primary": { "role": "primary", "displayName": "Cobalt Action", "canonical": "#1559d6", "tonalRamp": ["#071d4b", "#0b2f76", "#0e46ae", "#1559d6", "#4f80e2", "#87a9ed", "#bfd1f6", "#eaf1ff"] },
+      "success": { "role": "tertiary", "displayName": "Local Green", "canonical": "#16704a", "tonalRamp": ["#092b1d", "#0e4931", "#16704a", "#329165", "#70b995", "#a6d7ba", "#d2ecdc", "#effaf3"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Editorial Display", "purpose": "Page titles and candidate-facing narrative." },
+      "body": { "displayName": "Workflow Sans", "purpose": "Controls, records, and explanatory copy." }
+    },
+    "shadows": [{ "name": "record-hover", "value": "0 12px 28px rgb(31 57 97 / 8%)", "purpose": "Hover feedback for record cards only." }],
+    "motion": [{ "name": "control-transition", "value": "160ms ease-out", "purpose": "Interactive control color, border, and lift changes." }],
+    "breakpoints": [{ "name": "mobile", "value": "48rem" }]
+  },
+  "components": [
+    { "name": "Primary Button", "kind": "button", "refersTo": "button-primary", "description": "The one clear action for a workflow step.", "html": "<button class=\"ds-button-primary\">Review changes</button>", "css": ".ds-button-primary { min-height:44px; padding:10px 16px; border:1px solid transparent; border-radius:8px; background:#1559d6; color:#fff; font:700 14px Inter,system-ui,sans-serif; } .ds-button-primary:hover { background:#0e46ae; transform:translateY(-1px); } .ds-button-primary:focus-visible { outline:2px solid #1559d6; outline-offset:2px; box-shadow:0 0 0 3px #b9d3ff; }" },
+    { "name": "Secondary Button", "kind": "button", "refersTo": "button-secondary", "description": "A quieter alternative action.", "html": "<button class=\"ds-button-secondary\">Cancel</button>", "css": ".ds-button-secondary { min-height:44px; padding:10px 16px; border:1px solid #aeb9c9; border-radius:8px; background:#fffefa; color:#15223a; font:700 14px Inter,system-ui,sans-serif; } .ds-button-secondary:hover { border-color:#1559d6; color:#1559d6; } .ds-button-secondary:focus-visible { outline:2px solid #1559d6; outline-offset:2px; }" },
+    { "name": "Text Field", "kind": "input", "refersTo": "input", "description": "A labelled field in an editing workflow.", "html": "<label class=\"ds-field\">Company<input value=\"Northstar Studio\" /></label>", "css": ".ds-field { display:grid; gap:8px; color:#15223a; font:650 14px Inter,system-ui,sans-serif; } .ds-field input { padding:8px; border:1px solid #aeb9c9; border-radius:8px; background:#fffefa; color:#15223a; font:400 16px Inter,system-ui,sans-serif; } .ds-field input:focus-visible { outline:2px solid #1559d6; outline-offset:2px; box-shadow:0 0 0 3px #b9d3ff; }" },
+    { "name": "Record Details", "kind": "card", "refersTo": "panel", "description": "A stable table for concise record facts.", "html": "<section class=\"ds-record\"><strong>Record details</strong><dl><div><dt>Company</dt><dd>Northstar Studio</dd></div><div><dt>Role</dt><dd>Product designer</dd></div></dl></section>", "css": ".ds-record { overflow:hidden; border:1px solid #d9dfe8; border-radius:12px; background:#fffefa; color:#15223a; font-family:Inter,system-ui,sans-serif; } .ds-record > strong { display:block; padding:16px 20px; border-bottom:1px solid #d9dfe8; } .ds-record dl { margin:0; } .ds-record dl div { display:grid; grid-template-columns:0.7fr 1.3fr; gap:16px; padding:12px 20px; border-bottom:1px solid #d9dfe8; } .ds-record dl div:last-child { border:0; } .ds-record dt { color:#5a687c; font-size:14px; font-weight:650; } .ds-record dd { margin:0; font-weight:600; }" },
+    { "name": "Navigation Link", "kind": "nav", "refersTo": "nav-link", "description": "Quiet workspace navigation with a clear active state.", "html": "<a class=\"ds-nav\" href=\"#\">Profile</a>", "css": ".ds-nav { display:block; padding:11px 12px; border-radius:8px; color:#5a687c; font:650 16px Inter,system-ui,sans-serif; text-decoration:none; } .ds-nav:hover { background:#eaf1ff; color:#1559d6; } .ds-nav:focus-visible { outline:2px solid #1559d6; outline-offset:2px; }" }
+  ],
+  "narrative": {
+    "northStar": "The Candidate's Writing Desk",
+    "overview": "A calm, practical workspace where candidates can organise and refine their career evidence without feeling like they are operating developer tooling.",
+    "keyCharacteristics": ["Warm off-white canvas with deep navy ink and a single cobalt action color.", "Georgia display headings paired with a neutral system sans.", "Structured records and live previews make dense information easy to scan."],
+    "rules": [{ "name": "The One Accent Rule", "body": "Cobalt is reserved for action, selection, links, and focus.", "section": "colors" }],
+    "dos": ["Do use warm surfaces and precise hairlines to group information before shadows.", "Do make editing explicit with labelled fields, a review action, and a live preview."],
+    "donts": ["Don't use the old Vercel aesthetic, mesh gradients, technical eyebrows, or marketing pills.", "Don't let record facts float as ungrouped label/value text."]
+  }
+}

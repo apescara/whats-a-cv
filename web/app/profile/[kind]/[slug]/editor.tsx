@@ -43,7 +43,6 @@ export default function RecordEditor({ record, kind }: { record: RecordData; kin
   const [message, setMessage] = useState("");
   const [diff, setDiff] = useState("");
   const [proposalId, setProposalId] = useState<number | null>(null);
-  const [preview, setPreview] = useState(false);
 
   const update = (name: string, value: string) => setValues((current) => ({ ...current, [name]: name === "evidence" ? (() => { try { return JSON.parse(value); } catch { return value; } })() : value }));
   const submit = async () => {
@@ -64,15 +63,18 @@ export default function RecordEditor({ record, kind }: { record: RecordData; kin
   };
 
   return <form className="record-editor" onSubmit={(event) => { event.preventDefault(); void submit(); }}>
-    <h2>Edit {kind}</h2>
-    {recordFields.map(({ name, label, type }) => <label key={name}>{label}<input type={type || "text"} value={name === "evidence" ? JSON.stringify(values[name] || []) : String(values[name] || "")} onChange={(event) => update(name, event.target.value)} /></label>)}
-    <label>Markdown details<textarea rows={10} value={String(values.body || "")} onChange={(event) => update("body", event.target.value)} /></label>
-    <button type="button" onClick={() => setPreview((value) => !value)}>{preview ? "Hide" : "Show"} Markdown preview</button>
-    {preview && <pre className="markdown-preview">{markdown(values, recordFields)}</pre>}
-    <button type="submit">Submit proposal</button>
-    {message && <p role="status">{message}</p>}
-    {diff && <pre className="markdown-preview" aria-label="Proposal diff">{diff}</pre>}
-    {proposalId !== null && <div><button type="button" onClick={() => void decide("approve")}>Approve</button> <button type="button" onClick={() => void decide("reject")}>Reject</button></div>}
+    <section className="record-editor-fields">
+      <div className="editor-heading"><h2>Edit {kind}</h2><p>Review your changes before they are saved.</p></div>
+      <div className="editor-field-grid">
+        {recordFields.map(({ name, label, type }) => <label key={name}>{label}<input type={type || "text"} value={name === "evidence" ? JSON.stringify(values[name] || []) : String(values[name] || "")} onChange={(event) => update(name, event.target.value)} /></label>)}
+      </div>
+      <label className="editor-details">Markdown details<textarea rows={10} value={String(values.body || "")} onChange={(event) => update("body", event.target.value)} /></label>
+      <div className="editor-actions"><button type="submit">Review changes</button></div>
+      {message && <p role="status">{message}</p>}
+      {diff && <pre className="markdown-preview" aria-label="Proposal diff">{diff}</pre>}
+      {proposalId !== null && <div className="editor-actions"><button type="button" onClick={() => void decide("approve")}>Approve</button> <button className="button-secondary" type="button" onClick={() => void decide("reject")}>Reject</button></div>}
+    </section>
+    <aside className="editor-preview" aria-label="Live Markdown preview"><h2>Live preview</h2><p>How this record will be stored.</p><pre className="markdown-preview">{markdown(values, recordFields)}</pre></aside>
   </form>;
 }
 
