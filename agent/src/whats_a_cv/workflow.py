@@ -331,6 +331,10 @@ def final_review(state: GraphState, approved: bool | None = None) -> GraphState:
     return state
 
 
+def review_payload(state: GraphState) -> dict[str, Any]:
+    return {"diffs": state.get("artifact_paths", []), "validation": state.get("validation", {}), "terra": state.get("drafts", {}).get("terra", []), "compilation": state.get("compilation", {})}
+
+
 def finalize_application(root: Path, slug: str, files: dict[str, str], state: GraphState) -> Path:
     errors = validate_artifacts(files, state)
     if errors:
