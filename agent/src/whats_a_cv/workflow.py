@@ -233,3 +233,60 @@ def evidence_review(state: GraphState, decision: ReviewDecision | None = None) -
     state["decisions"] = {"evidence": decision.model_dump()}
     state["interrupt"] = None
     return state
+
+
+def _approved_ids(state: GraphState) -> set[str]:
+    return set(state.get("decisions", {}).get("evidence", {}).get("evidence_ids", []))
+
+
+def draft_cv(state: GraphState, model: Any) -> GraphState:
+    result = model.invoke(json.dumps({"job": state["job"], "evidence": state["evidence"], "approved": sorted(_approved_ids(state))}))
+    draft = result if isinstance(result, DraftBundle) else DraftBundle.model_validate(result)
+    if any(not set(claim.evidence_ids) <= _approved_ids(state) for claim in draft.claims):
+        raise ValueError("CV claim uses unapproved evidence")
+    state.setdefault("drafts", {})["cv"] = draft.model_dump()
+    return state
+
+
+class NextSteps(BaseModel):
+    assessment: str
+    evidence_table: list[str] = Field(default_factory=list)
+    gaps: list[str] = Field(default_factory=list)
+    interview_themes: list[str] = Field(default_factory=list)
+    questions: list[str] = Field(default_factory=list)
+    study_plan: list[str] = Field(default_factory=list)
+    risks: list[str] = Field(default_factory=list)
+    timing: str
+
+
+def draft_next_steps(state: GraphState, model: Any) -> GraphState:
+    result = model.invoke(json.dumps({"job": state["job"], "requirements": state["requirements"], "evidence": state["evidence"]}))
+    steps = result if isinstance(result, NextSteps) else NextSteps.model_validate(result)
+    state.setdefault("drafts", {})["next_steps"] = steps.model_dump()
+    return state
+
+
+def render_job_post(state: GraphState) -> str:
+    metadata = state["job"]["metadata"]
+    lines = ["---", *[f"{key}: {json.dumps(value, ensure_ascii=False)}" for key, value in metadata.items() if value not in ("", None)], "---", "", f"<!-- source: {state['job']['source_path']} -->", ""]
+    return "\n".join(lines)
+
+
+def latex_escape(value: str) -> str:
+    replacements = {"\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#", "_": r"\_", "{": r"\{", "}": r"\}"}
+    return "".join(replacements.get(char, char) for char in value)
+
+
+def render_cv(state: GraphState, template: str) -> str:
+    draft = DraftBundle.model_validate(state["drafts"]["cv"])
+    result = template.replace("TARGET ROLE", latex_escape(state["job"]["metadata"]["role"]))
+    result = result.replace("TARGETED SUMMARY", latex_escape(draft.summary))
+    claims = "\n".join(f"    \\item {latex_escape(claim.text)}" for claim in draft.claims)
+    result = result.replace("RELEVANT, EVIDENCE-BASED ACHIEVEMENT", claims or "")
+    return result
+
+
+def render_next_steps(state: GraphState) -> str:
+    steps = NextSteps.model_validate(state["drafts"]["next_steps"])
+    sections = [("Fit assessment", [steps.assessment]), ("Evidence", steps.evidence_table), ("Gaps", steps.gaps), ("Interview themes", steps.interview_themes), ("Questions", steps.questions), ("Study plan", steps.study_plan), ("Risks and timing", steps.risks + [steps.timing])]
+    return "\n\n".join(f"## {title}\n\n" + "\n".join(f"- {item}" for item in items) for title, items in sections)
