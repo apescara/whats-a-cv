@@ -132,8 +132,8 @@ Status conventions:
 - [x] **P3-09 — Add PDF tab.** Preview an existing PDF and offer download with a non-preview fallback. Dependencies: P3-06. Check: existing PDF returns the correct content type.
 - [x] **P3-10 — Add next-steps tab.** Render `.mdx` or legacy `.md` as safe Markdown without executing components. Dependencies: P3-03, P3-06. Check: legacy file renders.
 - [x] **P3-11 — Add files tab.** Show approved bundle files, sizes, and paths without browsing outside the bundle. Dependencies: P3-02, P3-06. Check: traversal-shaped filename fixture is rejected.
-- [ ] **P3-12 — Store application status.** Add an optional separate Markdown metadata file and proposal-based status updates. Dependencies: P1-25, P3-01. Check: updating status does not change generated artifacts.
-- [ ] **P3-13 — Add private application notes.** Store notes separately, keep them out of model context by default, and edit through proposals. Dependencies: P3-12. Check: read_application tool omits notes unless explicitly requested.
+- [x] **P3-12 — Store application status.** Add an optional separate Markdown metadata file and proposal-based status updates. Dependencies: P1-25, P3-01. Check: updating status does not change generated artifacts.
+- [x] **P3-13 — Add private application notes.** Store notes separately, keep them out of model context by default, and edit through proposals. Dependencies: P3-12. Check: read_application tool omits notes unless explicitly requested.
 - [ ] **P3-14 — Ingest pasted job text.** Add API and UI draft state for original text plus editable metadata; do not create an application yet. Dependencies: P2-03, P3-01. Check: pasted text survives page navigation in draft state.
 - [ ] **P3-15 — Fetch job URLs safely.** Add server-side HTTP fetching with scheme allowlist, private-network blocking, size/time limits, and manual-paste fallback. Dependencies: P3-14. Check: tests block localhost/private IPs and accept a mocked public page.
 - [ ] **P3-16 — Normalize fetched content.** Extract readable text, preserve the original URL/retrieval date, and strip active content. Dependencies: P3-15. Check: hostile HTML fixture becomes inert text.

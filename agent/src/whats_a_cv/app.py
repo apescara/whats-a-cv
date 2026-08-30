@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from .repository import (
     ApplicationMetadata, ProposalStore, RecordKind, RecordNotFoundError,
     list_applications, list_records, load_record, read_application,
-    read_artifact,
+    read_artifact, application_metadata_proposal,
 )
 from .repository.service import related_expertise
 
@@ -56,9 +56,9 @@ def applications():
 
 
 @app.get("/applications/{slug}")
-def application(slug: str):
+def application(slug: str, include_notes: bool = False):
     try:
-        return read_application(REPOSITORY_ROOT, slug)
+        return read_application(REPOSITORY_ROOT, slug, include_notes=include_notes)
     except FileNotFoundError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
     except ValueError as error:
@@ -75,6 +75,30 @@ def application_artifact(slug: str, filename: str):
         raise HTTPException(status_code=422, detail=str(error)) from error
     media_type = "application/pdf" if path.suffix == ".pdf" else "text/plain; charset=utf-8"
     return Response(content, media_type=media_type, headers={"Content-Disposition": f'inline; filename="{path.name}"'})
+
+
+class ApplicationStatusRequest(BaseModel):
+    status: str
+
+
+@app.post("/applications/{slug}/status")
+def propose_application_status(slug: str, request: ApplicationStatusRequest):
+    try:
+        return {"id": application_metadata_proposal(PROPOSALS, REPOSITORY_ROOT, slug, "status.md", request.status)}
+    except (FileNotFoundError, ValueError) as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+class ApplicationNotesRequest(BaseModel):
+    notes: str
+
+
+@app.post("/applications/{slug}/notes")
+def propose_application_notes(slug: str, request: ApplicationNotesRequest):
+    try:
+        return {"id": application_metadata_proposal(PROPOSALS, REPOSITORY_ROOT, slug, "notes.md", request.notes)}
+    except (FileNotFoundError, ValueError) as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
 
 
 class ProposalRequest(BaseModel):

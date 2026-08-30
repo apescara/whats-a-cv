@@ -16,7 +16,7 @@ from .preferences import read_preferences, serialize_preferences
 from .applications import (
     ApplicationBundle, ApplicationMetadata, ApplicationSummary, ArtifactPaths,
     compile_latex, fetch_job_url, list_applications, normalize_job_html,
-    read_application, read_artifact, render_inert_markdown,
+    read_application, read_artifact, render_inert_markdown, application_metadata_proposal,
 )
 
 __all__ = [
@@ -38,4 +38,5 @@ __all__ = [
     "ArtifactPaths", "ApplicationMetadata", "ApplicationSummary", "ApplicationBundle",
     "list_applications", "read_application", "read_artifact", "render_inert_markdown",
     "fetch_job_url", "normalize_job_html", "compile_latex",
+    "application_metadata_proposal",
 ]

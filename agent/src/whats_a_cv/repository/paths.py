@@ -28,4 +28,8 @@ def proposal_path(root: Path, target: Path) -> Path:
         if path.parent == approved and path.suffix == ".md":
             validate_slug(path.stem)
             return path
+    applications = (root / "applications").resolve()
+    path = candidate.resolve()
+    if path.parent.parent == applications and path.parent.name and path.name in {"status.md", "notes.md"}:
+        return path
     raise ValueError("proposal target is not an approved profile file")

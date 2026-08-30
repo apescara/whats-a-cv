@@ -13,7 +13,7 @@ from urllib.request import Request, urlopen
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .frontmatter import parse_frontmatter, split_frontmatter
+from .frontmatter import parse_frontmatter, serialize_frontmatter, split_frontmatter
 from .paths import proposal_path
 from .proposals import ProposalStore
 
@@ -66,6 +66,7 @@ class ApplicationBundle(BaseModel):
     files: list[str]
     extra_files: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
+    notes: str | None = None
 
 
 class JobDraft(BaseModel):
@@ -106,6 +107,9 @@ def _metadata(path: Path) -> ApplicationMetadata:
     data["date"] = str(data["date"] or "")
     data["retrieved"] = str(data["retrieved"] or "")
     data["artifacts"] = {"next_steps": next_steps, "status": status, "notes": notes}
+    if status:
+        status_data = parse_frontmatter((path / status).read_text(encoding="utf-8"), str(path / status))
+        data["status"] = str(status_data.get("status", data.get("status", "")))
     return ApplicationMetadata.model_validate(data)
 
 
@@ -124,9 +128,8 @@ def read_application(root: Path, slug: str, *, include_notes: bool = False) -> A
         warnings.append("missing cv.pdf")
     if metadata.artifacts.next_steps is None:
         warnings.append("missing next-steps.mdx or next-steps.md")
-    if include_notes and metadata.artifacts.notes:
-        metadata = metadata.model_copy(update={"notes": (path / metadata.artifacts.notes).read_text(encoding="utf-8")})
-    return ApplicationBundle(slug=slug, path=str(path.relative_to(root)), metadata=metadata, files=names, extra_files=extra, warnings=warnings)
+    notes = (path / metadata.artifacts.notes).read_text(encoding="utf-8") if include_notes and metadata.artifacts.notes else None
+    return ApplicationBundle(slug=slug, path=str(path.relative_to(root)), metadata=metadata, files=names, extra_files=extra, warnings=warnings, notes=notes)
 
 
 def list_applications(root: Path) -> list[ApplicationSummary]:
@@ -158,6 +161,12 @@ def read_artifact(root: Path, slug: str, filename: str) -> tuple[Path, bytes]:
     if not target.is_file() or target.is_symlink() or not target.resolve().is_relative_to(path.resolve()):
         raise FileNotFoundError(f"artifact not found: {filename}")
     return target, target.read_bytes()
+
+
+def application_metadata_proposal(store: ProposalStore, root: Path, slug: str, filename: str, value: str) -> int:
+    path = _application_path(root, slug) / filename
+    content = serialize_frontmatter({filename[:-3]: value}, "")
+    return store.create(path, content)
 
 
 def render_inert_markdown(text: str) -> str:
