@@ -81,6 +81,7 @@ export default function ProfilePage() {
           </ul>
         )}
       </section>
+      <p><a href="/profile/preferences">Edit search preferences</a> <small>(not CV evidence)</small></p>
     </section>
   );
 }
