@@ -64,6 +64,7 @@ export default function ProfilePage() {
       </nav>
       <section aria-labelledby="record-list-title">
         <h2 id="record-list-title">{recordKinds.find((item) => item.kind === kind)?.label}</h2>
+        {state === "ready" && records.some((record) => !record.valid) && <div role="alert" className="validation-summary"><strong>Validation summary</strong><ul>{records.filter((record) => !record.valid).map((record) => <li key={record.slug}>{record.slug}: {record.error || "Record is invalid"}</li>)}</ul></div>}
         {state === "loading" && <p role="status">Loading records…</p>}
         {state === "ready" && records.length === 0 && <p>No records yet.</p>}
         {state === "ready" && records.length > 0 && (
