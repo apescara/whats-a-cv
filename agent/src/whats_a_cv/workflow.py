@@ -235,7 +235,7 @@ def evidence_review(state: GraphState, decision: ReviewDecision | None = None) -
         state["interrupt"] = "evidence_review"
         return state
     if decision.action == "approve" and not decision.evidence_ids:
-        raise ValueError("approval requires evidence IDs")
+        decision = decision.model_copy(update={"evidence_ids": [str(index) for index, _ in enumerate(EvidenceSet.model_validate(state.get("evidence", {})).candidates)]})
     state["decisions"] = {"evidence": decision.model_dump()}
     state["interrupt"] = None
     return state
