@@ -67,6 +67,13 @@ class Requirement(BaseModel):
 class RequirementSet(BaseModel):
     requirements: list[Requirement]
 
+    @field_validator("requirements")
+    @classmethod
+    def unique_ids(cls, value: list[Requirement]) -> list[Requirement]:
+        if len({item.id for item in value}) != len(value):
+            raise ValueError("requirement IDs must be unique")
+        return value
+
 
 class EvidenceCandidate(BaseModel):
     requirement_id: str
