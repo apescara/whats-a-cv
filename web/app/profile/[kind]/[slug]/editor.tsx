@@ -42,6 +42,7 @@ export default function RecordEditor({ record, kind }: { record: RecordData; kin
   const [values, setValues] = useState(record);
   const [message, setMessage] = useState("");
   const [diff, setDiff] = useState("");
+  const [proposalId, setProposalId] = useState<number | null>(null);
   const [preview, setPreview] = useState(false);
 
   const update = (name: string, value: string) => setValues((current) => ({ ...current, [name]: name === "evidence" ? (() => { try { return JSON.parse(value); } catch { return value; } })() : value }));
@@ -49,10 +50,17 @@ export default function RecordEditor({ record, kind }: { record: RecordData; kin
     const response = await fetch("/api/proposals", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ target_path: `${kind}/${String(record.slug)}.md`, proposed_content: markdown(values, recordFields) }) });
     if (!response.ok) { setMessage("Could not create proposal."); return; }
     const { id } = await response.json() as { id: number };
+    setProposalId(id);
     const review = await fetch(`/api/proposals/${id}`);
     const proposal = await review.json() as { diff?: string };
     setDiff(proposal.diff || "No changes.");
     setMessage("Proposal ready for review.");
+  };
+  const decide = async (action: "approve" | "reject") => {
+    if (proposalId === null) return;
+    const response = await fetch(`/api/proposals/${proposalId}/${action}`, { method: "POST" });
+    setMessage(response.ok ? `Proposal ${action}d.` : `Could not ${action} proposal.`);
+    if (response.ok) window.location.reload();
   };
 
   return <form className="record-editor" onSubmit={(event) => { event.preventDefault(); void submit(); }}>
@@ -64,6 +72,7 @@ export default function RecordEditor({ record, kind }: { record: RecordData; kin
     <button type="submit">Submit proposal</button>
     {message && <p role="status">{message}</p>}
     {diff && <pre className="markdown-preview" aria-label="Proposal diff">{diff}</pre>}
+    {proposalId !== null && <div><button type="button" onClick={() => void decide("approve")}>Approve</button> <button type="button" onClick={() => void decide("reject")}>Reject</button></div>}
   </form>;
 }
 
