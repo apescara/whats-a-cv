@@ -101,7 +101,7 @@ Status conventions:
 - [x] **P2-03 — Add primary routes.** Create empty routes for Profile, Create CV, Applications, Assistant, Lab, and Settings. Dependencies: P2-02. Check: every sidebar link returns 200.
 - [x] **P2-04 — Generate the API client.** Generate TypeScript request types from FastAPI OpenAPI and add a repeatable npm command. Dependencies: P1-29, P2-03. Check: generated client has no manual edits and web type-check passes.
 - [x] **P2-05 — Add record-kind navigation.** Add Profile tabs/counts for every record kind. Dependencies: P1-28, P2-04. Check: counts match API fixtures.
-- [ ] **P2-06 — Build the record list.** Show title, subtitle, validation state, and updated path with loading, empty, and error states. Dependencies: P2-05. Check: component test covers all four states.
+- [x] **P2-06 — Build the record list.** Show title, subtitle, validation state, and updated path with loading, empty, and error states. Dependencies: P2-05. Check: component test covers all four states.
 - [ ] **P2-07 — Build the record detail route.** Load one typed record by kind and slug and show its source path. Dependencies: P2-06. Check: valid and missing record tests.
 - [ ] **P2-08 — Add experience editor.** Implement fields and repeatable achievements/skills matching the existing template. Dependencies: P2-07, P1-13. Check: edit fixture serializes to valid experience Markdown.
 - [ ] **P2-09 — Add education editor.** Implement fields matching the education template. Dependencies: P2-07, P1-14. Check: edit fixture passes API validation.
