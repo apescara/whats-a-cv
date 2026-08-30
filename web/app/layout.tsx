@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const navigation = [
-    ["Profile", "/"],
+    ["Profile", "/profile"],
     ["Create CV", "/create-cv"],
     ["Applications", "/applications"],
     ["Assistant", "/assistant"],
