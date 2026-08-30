@@ -67,7 +67,7 @@ Status conventions:
 - [x] **P1-04 — Parse frontmatter.** Add YAML parsing with mapping-only output and actionable errors. Dependencies: P1-03. Check: malformed YAML test contains file context.
 - [x] **P1-05 — Serialize records.** Serialize frontmatter plus body with stable field ordering and a final newline. Dependencies: P1-04. Check: snapshot one template round trip.
 - [x] **P1-06 — Preserve record content.** Add corpus round-trip tests proving parse/serialize/parse semantic equality for every tracked source record. Dependencies: P1-05. Check: `cd agent && uv run pytest tests/repository/test_round_trip.py`.
-- [ ] **P1-07 — Validate filenames.** Add lowercase hyphenated slug validation and reserved `_template.md` handling. Dependencies: P1-01. Check: tests for valid, uppercase, traversal-like, and template filenames.
+- [x] **P1-07 — Validate filenames.** Add lowercase hyphenated slug validation and reserved `_template.md` handling. Dependencies: P1-01. Check: tests for valid, uppercase, traversal-like, and template filenames.
 - [ ] **P1-08 — Validate ISO dates.** Support `YYYY-MM`, `YYYY-MM-DD`, and `present` only where allowed. Dependencies: P1-01. Check: boundary and invalid-date tests.
 - [ ] **P1-09 — Enforce approved paths.** Resolve record paths beneath their approved roots and reject absolute paths, `..`, hidden paths, and unsupported extensions. Dependencies: P1-01, P1-07. Check: traversal tests.
 - [ ] **P1-10 — Reject symlink escapes.** Prevent reads and writes through symlinks escaping the repository. Dependencies: P1-09. Check: temporary symlink escape test.
