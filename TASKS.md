@@ -61,7 +61,7 @@ Status conventions:
 
 ## Phase 1 — Safe Markdown repository service
 
-- [ ] **P1-01 — Define record kinds.** Add a closed enum mapping contact, experience, education, certifications, projects, expertise, and languages to approved roots. Dependencies: P0-16. Check: unit test rejects an unknown kind.
+- [x] **P1-01 — Define record kinds.** Add a closed enum mapping contact, experience, education, certifications, projects, expertise, and languages to approved roots. Dependencies: P0-16. Check: unit test rejects an unknown kind.
 - [ ] **P1-02 — Define source locations.** Add a typed source-location model containing relative path and optional section heading. Dependencies: P1-01. Check: Pydantic round-trip test.
 - [ ] **P1-03 — Split frontmatter safely.** Implement a parser that separates YAML frontmatter and Markdown body without interpreting body content. Dependencies: P1-01. Check: tests for valid, missing, and unclosed frontmatter.
 - [ ] **P1-04 — Parse frontmatter.** Add YAML parsing with mapping-only output and actionable errors. Dependencies: P1-03. Check: malformed YAML test contains file context.
