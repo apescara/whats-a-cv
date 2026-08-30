@@ -213,9 +213,7 @@ def rank_evidence(state: GraphState, model: Any) -> GraphState:
     supplied = EvidenceSet.model_validate(state.get("evidence", {}))
     result = model.invoke(supplied.model_dump_json())
     ranked = result if isinstance(result, EvidenceSet) else EvidenceSet.model_validate(result)
-    allowed = {(item.requirement_id, item.source_path, item.excerpt) for item in supplied.candidates}
-    if any((item.requirement_id, item.source_path, item.excerpt) not in allowed for item in ranked.candidates):
-        raise ValueError("model returned evidence that was not supplied")
+    validate_ranked_evidence(ranked, supplied)
     state["evidence"] = ranked.model_dump()
     return state
 
@@ -230,6 +228,8 @@ def evidence_review(state: GraphState, decision: ReviewDecision | None = None) -
     if decision is None:
         state["interrupt"] = "evidence_review"
         return state
+    if decision.action == "approve" and not decision.evidence_ids:
+        raise ValueError("approval requires evidence IDs")
     state["decisions"] = {"evidence": decision.model_dump()}
     state["interrupt"] = None
     return state
