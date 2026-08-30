@@ -11,7 +11,10 @@ from typing import Any, Literal, TypedDict
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from .repository import ApplicationMetadata, RecordKind, atomic_write, list_records, load_record
+from .repository.applications import ApplicationMetadata
+from .repository.atomic import atomic_write
+from .repository.kinds import RecordKind
+from .repository.service import list_records, load_record
 
 RequirementCategory = Literal["must-have", "preferred", "responsibility", "keyword", "recruiter-concern"]
 REQUIREMENTS_PROMPT = "Extract only explicit requirements and preserve short source excerpts."
@@ -330,3 +333,20 @@ def finalize_application(root: Path, slug: str, files: dict[str, str], state: Gr
     temporary.rename(target)
     state["artifact_paths"] = [str(target.relative_to(root) / name) for name in files]
     return target
+
+
+def workflow_event(state: GraphState, node: str, status: str = "completed") -> dict[str, Any]:
+    event = {"thread_id": state["thread_id"], "node": node, "status": status}
+    state.setdefault("events", []).append(event)
+    return event
+
+
+def build_graph(root: Path, *, model: Any = None):
+    from langgraph.graph import END, START, StateGraph
+    graph = StateGraph(GraphState)
+    graph.add_node("ingest_job", lambda state: (workflow_event(state, "ingest_job"), state)[1])
+    graph.add_node("retrieve_evidence", lambda state: (retrieve_evidence(state, root), workflow_event(state, "retrieve_evidence"), state)[-1])
+    graph.add_edge(START, "ingest_job")
+    graph.add_edge("ingest_job", "retrieve_evidence")
+    graph.add_edge("retrieve_evidence", END)
+    return graph.compile()

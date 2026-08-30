@@ -1,11 +1,12 @@
 import os
+import json
 from datetime import date
 from typing import Literal
 
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import Response
+from fastapi.responses import Response, StreamingResponse
 from pydantic import BaseModel
 
 from .repository import (
@@ -15,6 +16,8 @@ from .repository import (
     JobDraft, fetch_job_url, compile_latex,
 )
 from .repository.service import related_expertise
+from .workflow import (CheckpointStore, ReviewDecision, evidence_review, ingest_job,
+                       new_state, checkpoint_store, retrieve_evidence, workflow_event)
 
 def repository_root() -> Path:
     return Path(os.environ.get("WHATS_A_CV_REPOSITORY", Path(__file__).resolve().parents[3])).resolve()
@@ -22,6 +25,7 @@ def repository_root() -> Path:
 
 REPOSITORY_ROOT = repository_root()
 PROPOSALS = ProposalStore(REPOSITORY_ROOT / ".whats-a-cv" / "state.db", REPOSITORY_ROOT)
+CHECKPOINTS = checkpoint_store(REPOSITORY_ROOT)
 
 
 class HealthResponse(BaseModel):
@@ -131,6 +135,55 @@ def save_job_draft(request: JobDraftRequest):
     if not request.text.strip():
         raise HTTPException(status_code=422, detail="job text is required")
     return JobDraft(text=request.text, metadata=request.metadata, source_url=request.metadata.source_url, retrieved=request.metadata.retrieved)
+
+
+class WorkflowStartRequest(BaseModel):
+    text: str
+    metadata: ApplicationMetadata
+    thread_id: str | None = None
+
+
+@app.post("/workflow/start")
+def workflow_start(request: WorkflowStartRequest):
+    state = new_state(request.thread_id)
+    ingest_job(state, REPOSITORY_ROOT, {"text": request.text, "metadata": request.metadata.model_dump()})
+    retrieve_evidence(state, REPOSITORY_ROOT)
+    state["interrupt"] = "evidence_review"
+    workflow_event(state, "evidence_review", "waiting")
+    CHECKPOINTS.save(state)
+    return state
+
+
+@app.get("/workflow/{thread_id}")
+def workflow_inspect(thread_id: str):
+    state = CHECKPOINTS.load(thread_id)
+    if state is None:
+        raise HTTPException(status_code=404, detail="workflow not found")
+    return state
+
+
+class WorkflowResumeRequest(BaseModel):
+    decision: ReviewDecision | None = None
+
+
+@app.post("/workflow/{thread_id}/resume")
+def workflow_resume(thread_id: str, request: WorkflowResumeRequest):
+    state = CHECKPOINTS.load(thread_id)
+    if state is None:
+        raise HTTPException(status_code=404, detail="workflow not found")
+    if state.get("interrupt") == "evidence_review":
+        evidence_review(state, request.decision)
+    CHECKPOINTS.save(state)
+    return state
+
+
+@app.get("/workflow/{thread_id}/events")
+def workflow_events(thread_id: str):
+    state = CHECKPOINTS.load(thread_id)
+    if state is None:
+        raise HTTPException(status_code=404, detail="workflow not found")
+    body = "".join(f"data: {json.dumps(event)}\n\n" for event in state.get("events", []))
+    return StreamingResponse(iter([body]), media_type="text/event-stream")
 
 
 class JobUrlRequest(BaseModel):
