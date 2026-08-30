@@ -147,7 +147,7 @@ class WorkflowStartRequest(BaseModel):
 def workflow_start(request: WorkflowStartRequest):
     state = new_state(request.thread_id)
     ingest_job(state, REPOSITORY_ROOT, {"text": request.text, "metadata": request.metadata.model_dump()})
-    state["requirements"] = draft_requirements(request.text).model_dump()
+    state["requirements"] = draft_requirements(request.text, REPOSITORY_ROOT).model_dump()
     retrieve_evidence(state, REPOSITORY_ROOT)
     state["interrupt"] = "evidence_review"
     workflow_event(state, "evidence_review", "waiting")

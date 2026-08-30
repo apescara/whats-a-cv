@@ -190,11 +190,20 @@ def ingest_job(state: GraphState, root: Path, job: dict[str, Any]) -> GraphState
     return state
 
 
-def draft_requirements(text: str) -> RequirementSet:
+def draft_requirements(text: str, root: Path | None = None) -> RequirementSet:
     """Create reviewable requirements before an AI model is configured."""
     lines = [line.strip(" -*•\t") for line in text.splitlines() if line.strip()]
     selected = [line for line in lines if any(word in line.lower() for word in ("require", "experience", "skills", "python", "sql", "must-have", "responsibil"))]
-    return RequirementSet(requirements=[Requirement(id=f"req-{index}", category="must-have", text=line, source_excerpt=line) for index, line in enumerate(selected[:20], 1)])
+    known = []
+    if root:
+        for summary in list_records(root, RecordKind.EXPERTISE):
+            if summary.valid:
+                record = load_record(root, RecordKind.EXPERTISE, summary.slug)
+                if re.search(rf"(?<!\w){re.escape(record.name)}(?!\w)", text, re.IGNORECASE):
+                    known.append(record.name)
+    selected += [f"{name} experience" for name in known]
+    unique = list(dict.fromkeys(selected))
+    return RequirementSet(requirements=[Requirement(id=f"req-{index}", category="must-have", text=line, source_excerpt=line) for index, line in enumerate(unique[:20], 1)])
 
 
 def extract_requirements(state: GraphState, model: Any) -> GraphState:
@@ -209,13 +218,15 @@ def retrieve_evidence(state: GraphState, root: Path) -> GraphState:
     requirements = RequirementSet.model_validate(state["requirements"])
     candidates: list[EvidenceCandidate] = []
     for requirement in requirements.requirements:
-        terms = {word.lower() for word in re.findall(r"[a-z0-9+#.-]+", requirement.text.lower()) if len(word) > 2}
+        stopwords = {"and", "the", "with", "for", "from", "that", "this", "have", "has", "must", "experience", "skills", "responsibilities"}
+        terms = {word for word in re.findall(r"[a-z0-9+#.-]+", requirement.text.lower()) if len(word) > 2 and word not in stopwords}
         for kind in RecordKind:
             for summary in list_records(root, kind):
                 if not summary.valid:
                     continue
                 record = load_record(root, kind, summary.slug)
-                for line in [record.body, getattr(record, "name", ""), getattr(record, "role", "")]:
+                lines = record.body.splitlines() + [getattr(record, "name", ""), getattr(record, "role", ""), getattr(record, "company", "")]
+                for line in lines:
                     words = set(re.findall(r"[a-z0-9+#.-]+", line.lower()))
                     if terms and len(terms & words) >= max(1, min(2, len(terms))):
                         candidates.append(EvidenceCandidate(requirement_id=requirement.id, source_path=summary.relative_path, section="body", excerpt=line.strip(), relevance_reason="lexical match", confidence=0.5))

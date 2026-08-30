@@ -1,4 +1,4 @@
-from whats_a_cv.workflow import CheckpointStore, evidence_review, new_state
+from whats_a_cv.workflow import CheckpointStore, draft_requirements, evidence_review, new_state, retrieve_evidence
 from whats_a_cv.app import WorkflowStartRequest, workflow_start
 from whats_a_cv.repository import ApplicationMetadata
 
@@ -21,3 +21,13 @@ def test_workflow_start_keeps_unconfigured_ai_draft_usable(monkeypatch, tmp_path
     monkeypatch.setattr("whats_a_cv.app.CHECKPOINTS", CheckpointStore(tmp_path / "state.db"))
     state = workflow_start(WorkflowStartRequest(text="Python data role", metadata=ApplicationMetadata(company="Acme", role="Engineer")))
     assert state["interrupt"] == "evidence_review"
+
+
+def test_retrieval_matches_canonical_expertise_and_experience_lines(tmp_path):
+    (tmp_path / "expertise").mkdir()
+    (tmp_path / "expertise" / "python.md").write_text('---\nname: Python\ncategory: language\n---\n\n# Python\n\n- Built data pipelines with Python.\n', encoding="utf-8")
+    state = new_state("match-thread")
+    state["requirements"] = draft_requirements("Required Python experience", tmp_path).model_dump()
+    retrieve_evidence(state, tmp_path)
+    candidates = state["evidence"]["candidates"]
+    assert candidates and candidates[0]["source_path"] == "expertise/python.md"
