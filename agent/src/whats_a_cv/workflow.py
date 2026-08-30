@@ -290,3 +290,43 @@ def render_next_steps(state: GraphState) -> str:
     steps = NextSteps.model_validate(state["drafts"]["next_steps"])
     sections = [("Fit assessment", [steps.assessment]), ("Evidence", steps.evidence_table), ("Gaps", steps.gaps), ("Interview themes", steps.interview_themes), ("Questions", steps.questions), ("Study plan", steps.study_plan), ("Risks and timing", steps.risks + [steps.timing])]
     return "\n\n".join(f"## {title}\n\n" + "\n".join(f"- {item}" for item in items) for title, items in sections)
+
+
+def validate_artifacts(files: dict[str, str], state: GraphState) -> list[str]:
+    errors = [name for name in ("job-post.md", "cv.tex", "next-steps.mdx") if name not in files]
+    if "cv.tex" in files and "\\documentclass" not in files["cv.tex"]:
+        errors.append("cv.tex must contain a document class")
+    if "cv.tex" in files and any(token in files["cv.tex"] for token in ("\\write18", "\\input{") ):
+        errors.append("unsafe LaTeX command")
+    if "job-post.md" in files and "TODO" in files["job-post.md"]:
+        errors.append("job post contains TODO")
+    return errors
+
+
+def final_review(state: GraphState, approved: bool | None = None) -> GraphState:
+    if approved is None:
+        state["interrupt"] = "final_review"
+    elif approved:
+        state["approvals"] = {"final": True}
+        state["interrupt"] = None
+    else:
+        state["approvals"] = {"final": False}
+        state["interrupt"] = None
+    return state
+
+
+def finalize_application(root: Path, slug: str, files: dict[str, str], state: GraphState) -> Path:
+    errors = validate_artifacts(files, state)
+    if errors:
+        raise ValueError("cannot finalize invalid artifacts: " + ", ".join(errors))
+    target = root / "applications" / slug
+    if target.exists():
+        raise FileExistsError(f"application already exists: {slug}")
+    temporary = root / ".whats-a-cv" / "drafts" / state["thread_id"]
+    temporary.mkdir(parents=True, exist_ok=False)
+    for name, content in files.items():
+        atomic_write(temporary / name, content)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    temporary.rename(target)
+    state["artifact_paths"] = [str(target.relative_to(root) / name) for name in files]
+    return target
