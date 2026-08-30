@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { components } from "../../../../lib/api.generated";
-import RecordEditor from "./editor";
+import RecordEditor, { ContactEditor } from "./editor";
 
 type RecordKind = components["schemas"]["RecordKind"];
 type RecordData = { slug: string; body?: string; relative_path?: string; [key: string]: unknown };
@@ -32,7 +32,7 @@ export default function RecordDetailPage({ params }: { params: Promise<{ kind: s
   if (state === "loading") return <p role="status">Loading record…</p>;
   if (state === "error" || !record) return <p role="alert">Record not found.</p>;
 
-  const fields = Object.entries(record).filter(([key]) => !["slug", "body", "relative_path"].includes(key));
+  const fields = Object.entries(record).filter(([key]) => !["slug", "body", "relative_path", ...(record.type ? ["value"] : [])].includes(key));
   return (
     <article>
       <a href="/profile">← Profile</a>
@@ -42,7 +42,7 @@ export default function RecordDetailPage({ params }: { params: Promise<{ kind: s
         {fields.map(([key, value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{typeof value === "string" ? value : JSON.stringify(value)}</dd></div>)}
       </dl>
       {record.body && <pre className="markdown-preview">{String(record.body)}</pre>}
-      {record.role && record.company ? <RecordEditor record={record} kind="experience" /> : record.qualification ? <RecordEditor record={record} kind="education" /> : record.issuer ? <RecordEditor record={record} kind="certifications" /> : record.category ? <RecordEditor record={record} kind="expertise" /> : record.language ? <RecordEditor record={record} kind="languages" /> : record.name ? <RecordEditor record={record} kind="projects" /> : null}
+      {record.type ? <ContactEditor record={record} /> : record.role && record.company ? <RecordEditor record={record} kind="experience" /> : record.qualification ? <RecordEditor record={record} kind="education" /> : record.issuer ? <RecordEditor record={record} kind="certifications" /> : record.category ? <RecordEditor record={record} kind="expertise" /> : record.language ? <RecordEditor record={record} kind="languages" /> : record.name ? <RecordEditor record={record} kind="projects" /> : null}
     </article>
   );
 }

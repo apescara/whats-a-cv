@@ -56,3 +56,13 @@ export default function RecordEditor({ record, kind }: { record: RecordData; kin
     {message && <p role="status">{message}</p>}
   </form>;
 }
+
+export function ContactEditor({ record }: { record: RecordData }) {
+  const [revealed, setRevealed] = useState(false);
+  return <section className="record-editor" aria-labelledby="contact-editor-title">
+    <h2 id="contact-editor-title">Private contact</h2>
+    <p>Inclusion: {record.include_by_default ? "Included by default" : "Not included by default"}</p>
+    <p>{revealed ? String(record.value || "") : "••••••••"}</p>
+    <button type="button" onClick={() => setRevealed((value) => !value)}>{revealed ? "Hide value" : "Reveal value"}</button>
+  </section>;
+}

@@ -109,7 +109,7 @@ Status conventions:
 - [x] **P2-11 — Add project editor.** Implement context, contributions, outcomes, and skills fields. Dependencies: P2-07, P1-16. Check: edit fixture passes API validation.
 - [x] **P2-12 — Add expertise editor.** Implement name, category, last-used, and evidence bullets. Dependencies: P2-07, P1-17. Check: edit fixture preserves evidence bullets.
 - [x] **P2-13 — Add language editor.** Implement language and proficiency fields. Dependencies: P2-07, P1-18. Check: edit fixture passes API validation.
-- [ ] **P2-14 — Add private contact editor.** Mask values by default and show inclusion status explicitly. Dependencies: P2-07, P1-19. Check: browser test confirms value is not present before reveal.
+- [x] **P2-14 — Add private contact editor.** Mask values by default and show inclusion status explicitly. Dependencies: P2-07, P1-19. Check: browser test confirms value is not present before reveal.
 - [ ] **P2-15 — Add preferences editor.** Keep preferences visually separate from CV evidence. Dependencies: P2-07, P1-20. Check: UI labels state preferences are not copied automatically.
 - [ ] **P2-16 — Add raw Markdown preview.** Show generated Markdown from form state without writing. Dependencies: P2-08 through P2-15. Check: toggling preview preserves unsaved form state.
 - [ ] **P2-17 — Add proposal diff review.** Submit form changes as proposals and show the server-produced unified diff. Dependencies: P1-29, P2-16. Check: opening review does not modify the source file.
