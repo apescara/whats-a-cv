@@ -137,6 +137,17 @@ def new_state(thread_id: str | None = None) -> GraphState:
     return {"thread_id": thread_id or str(uuid.uuid4()), "events": [], "interrupt": None}
 
 
+def state_json(state: GraphState) -> str:
+    return json.dumps(state, sort_keys=True)
+
+
+def state_from_json(value: str) -> GraphState:
+    state = json.loads(value)
+    if not isinstance(state, dict) or not state.get("thread_id"):
+        raise ValueError("invalid graph state")
+    return state
+
+
 class CheckpointStore:
     def __init__(self, path: Path):
         self.path = path
@@ -146,9 +157,9 @@ class CheckpointStore:
 
     def save(self, state: GraphState) -> None:
         with sqlite3.connect(self.path) as db:
-            db.execute("INSERT OR REPLACE INTO checkpoints VALUES (?, ?)", (state["thread_id"], json.dumps(state)))
+            db.execute("INSERT OR REPLACE INTO checkpoints VALUES (?, ?)", (state["thread_id"], state_json(state)))
 
     def load(self, thread_id: str) -> GraphState | None:
         with sqlite3.connect(self.path) as db:
             row = db.execute("SELECT state FROM checkpoints WHERE thread_id = ?", (thread_id,)).fetchone()
-        return json.loads(row[0]) if row else None
+        return state_from_json(row[0]) if row else None
