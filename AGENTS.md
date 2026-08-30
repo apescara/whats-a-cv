@@ -1,4 +1,4 @@
-# Job Hunter
+# What's a CV?
 
 Help the candidate create a truthful, targeted application for each job. Treat the Markdown files in this repository as the source of truth. Select the strongest relevant evidence; do not try to fit every career detail into every CV. The objective is to make the CV as hard as it can to be failed.
 
@@ -13,7 +13,7 @@ Help the candidate create a truthful, targeted application for each job. Treat t
 ## Repository structure
 
 ```text
-job-hunter/
+whats-a-cv/
 ├── contact/             # One private contact method per file
 ├── experience/          # One role per file
 ├── education/           # One qualification per file

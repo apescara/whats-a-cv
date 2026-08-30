@@ -1,6 +1,6 @@
-# Job Hunter
+# What's a CV?
 
-A small, file-based workspace for maintaining one career source of truth and producing a focused CV for each application.
+A local-first workspace for maintaining one career source of truth and adapting it to each opportunity. The experience is the durable asset; a CV is only one temporary, job-specific view of it.
 
 ## Set up your profile
 
