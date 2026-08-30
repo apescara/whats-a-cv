@@ -147,6 +147,9 @@ class WorkflowStartRequest(BaseModel):
 def workflow_start(request: WorkflowStartRequest):
     state = new_state(request.thread_id)
     ingest_job(state, REPOSITORY_ROOT, {"text": request.text, "metadata": request.metadata.model_dump()})
+    # Requirement extraction is an AI step; keep the draft resumable when it is
+    # not configured instead of sending an incomplete state into retrieval.
+    state["requirements"] = {"requirements": []}
     retrieve_evidence(state, REPOSITORY_ROOT)
     state["interrupt"] = "evidence_review"
     workflow_event(state, "evidence_review", "waiting")

@@ -1,0 +1,23 @@
+from whats_a_cv.workflow import CheckpointStore, evidence_review, new_state
+from whats_a_cv.app import WorkflowStartRequest, workflow_start
+from whats_a_cv.repository import ApplicationMetadata
+
+
+def test_evidence_review_survives_store_recreation(tmp_path):
+    store = CheckpointStore(tmp_path / "state.db")
+    state = new_state("stable-thread")
+    state["evidence"] = {"candidates": []}
+    evidence_review(state)
+    store.save(state)
+
+    recovered = CheckpointStore(tmp_path / "state.db").load("stable-thread")
+    assert recovered is not None
+    assert recovered["interrupt"] == "evidence_review"
+    assert recovered["events"] == []
+
+
+def test_workflow_start_keeps_unconfigured_ai_draft_usable(monkeypatch, tmp_path):
+    monkeypatch.setattr("whats_a_cv.app.REPOSITORY_ROOT", tmp_path)
+    monkeypatch.setattr("whats_a_cv.app.CHECKPOINTS", CheckpointStore(tmp_path / "state.db"))
+    state = workflow_start(WorkflowStartRequest(text="Python data role", metadata=ApplicationMetadata(company="Acme", role="Engineer")))
+    assert state["interrupt"] == "evidence_review"
