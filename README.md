@@ -2,6 +2,34 @@
 
 A local-first workspace for maintaining one career source of truth and adapting it to each opportunity. The experience is the durable asset; a CV is only one temporary, job-specific view of it.
 
+## Run locally
+
+Prerequisite: Docker Desktop with Docker Compose support.
+
+Provider credentials are optional for the non-AI profile. To enable AI actions,
+copy `.env.example` to `.env` and add a supported provider key:
+
+```sh
+cp .env.example .env
+```
+
+Start the development stack with:
+
+```sh
+make dev
+```
+
+The services are available at:
+
+- Web app: http://localhost:3000
+- Agent API and OpenAPI docs: http://localhost:8000/docs
+
+Stop the stack with:
+
+```sh
+make stop
+```
+
 ## Set up your profile
 
 Copy the `_template.md` file in each folder and create one file per real item. Start with:

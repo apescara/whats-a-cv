@@ -1,6 +1,16 @@
 .DS_Store
 /graphify-out/
 
+# Local derived application state and Compose volumes.
+.whats-a-cv/
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+**/.next/
+**/volumes/
+
 # Keep private contact details local.
 contact/*.md
 !contact/_template.md

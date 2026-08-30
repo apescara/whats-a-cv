@@ -42,22 +42,22 @@ Status conventions:
 
 ## Phase 0 — Runnable skeleton
 
-- [ ] **P0-01 — Ignore derived local state.** Add `.whats-a-cv/`, `.env`, framework build output, and local Compose volumes to `.gitignore` without weakening existing contact privacy rules. Dependencies: none. Check: `git check-ignore .whats-a-cv/state.db .env web/.next/`.
-- [ ] **P0-02 — Add environment template.** Create `.env.example` with empty `OPENAI_API_KEY`, Luna/Terra model IDs, local URLs, and no secrets. Dependencies: P0-01. Check: verify `.env.example` is tracked and `.env` is ignored.
-- [ ] **P0-03 — Record canonical-storage decision.** Add `docs/adr/0001-markdown-is-canonical.md` covering canonical and derived data boundaries. Dependencies: none. Check: document names every canonical root from `BUILD_PLAN.md`.
-- [ ] **P0-04 — Record orchestration decision.** Add ADR defining ADK for conversation, LangGraph for the application workflow, and LangChain for integrations. Dependencies: none. Check: document contains one owner for each responsibility and no duplicate CV workflow.
-- [ ] **P0-05 — Record approval decision.** Add ADR defining read actions, proposal actions, approval-required writes, and destructive-action boundaries. Dependencies: none. Check: document explicitly forbids direct agent filesystem access.
-- [ ] **P0-06 — Scaffold Python package.** Create `agent/pyproject.toml`, `agent/src/whats_a_cv/__init__.py`, and a locked Python version using `uv`; include FastAPI, Uvicorn, Pydantic, and pytest only. Dependencies: P0-02. Check: `cd agent && uv run python -c "import whats_a_cv"`.
-- [ ] **P0-07 — Add FastAPI health endpoint.** Create the smallest app exposing `GET /health` with a typed `{status: "ok"}` response. Dependencies: P0-06. Check: `cd agent && uv run python -m pytest tests/test_health.py`.
-- [ ] **P0-08 — Containerize the agent service.** Add `agent/Dockerfile` with a non-root runtime and Uvicorn startup. Dependencies: P0-07. Check: `docker build -t whats-a-cv-agent ./agent`.
-- [ ] **P0-09 — Scaffold Next.js web app.** Create `web/` with TypeScript, App Router, npm lockfile, lint, and no component framework. Dependencies: P0-02. Check: `cd web && npm run build`.
-- [ ] **P0-10 — Add web health route.** Add `GET /api/health` returning `{status: "ok"}`. Dependencies: P0-09. Check: add and run the smallest route test or build-time smoke check.
-- [ ] **P0-11 — Containerize the web app.** Add `web/Dockerfile` with development and production stages. Dependencies: P0-09. Check: `docker build -t whats-a-cv-web ./web`.
-- [ ] **P0-12 — Compose the core services.** Add `docker-compose.yml` for web and agent with repository mounts, health checks, localhost ports, and persistent derived state only. Dependencies: P0-08, P0-11. Check: `docker compose config`.
-- [ ] **P0-13 — Add the one-line launcher.** Add `make dev` to run the Compose development stack with build and hot reload. Dependencies: P0-12. Check: `make dev`, then both health endpoints return 200.
-- [ ] **P0-14 — Add lifecycle commands.** Add safe `make stop`, `make test`, and `make clean`; clean may remove only documented derived state. Dependencies: P0-13. Check: inspect `make -n clean` and confirm no canonical directory can be targeted.
-- [ ] **P0-15 — Document local startup.** Update `README.md` with prerequisites, `make dev`, URLs, optional API-key setup, and stop command. Dependencies: P0-13. Check: follow the documented startup from a stopped stack.
-- [ ] **P0-16 — Skeleton review.** **Terra review.** Audit Phase 0 against the three ADRs and one-command requirement; fix only confirmed Phase 0 defects. Dependencies: P0-01 through P0-15. Check: `make test` and `docker compose config`.
+- [x] **P0-01 — Ignore derived local state.** Add `.whats-a-cv/`, `.env`, framework build output, and local Compose volumes to `.gitignore` without weakening existing contact privacy rules. Dependencies: none. Check: `git check-ignore .whats-a-cv/state.db .env web/.next/`.
+- [x] **P0-02 — Add environment template.** Create `.env.example` with empty `OPENAI_API_KEY`, Luna/Terra model IDs, local URLs, and no secrets. Dependencies: P0-01. Check: verify `.env.example` is tracked and `.env` is ignored.
+- [x] **P0-03 — Record canonical-storage decision.** Add `docs/adr/0001-markdown-is-canonical.md` covering canonical and derived data boundaries. Dependencies: none. Check: document names every canonical root from `BUILD_PLAN.md`.
+- [x] **P0-04 — Record orchestration decision.** Add ADR defining ADK for conversation, LangGraph for the application workflow, and LangChain for integrations. Dependencies: none. Check: document contains one owner for each responsibility and no duplicate CV workflow.
+- [x] **P0-05 — Record approval decision.** Add ADR defining read actions, proposal actions, approval-required writes, and destructive-action boundaries. Dependencies: none. Check: document explicitly forbids direct agent filesystem access.
+- [x] **P0-06 — Scaffold Python package.** Create `agent/pyproject.toml`, `agent/src/whats_a_cv/__init__.py`, and a locked Python version using `uv`; include FastAPI, Uvicorn, Pydantic, and pytest only. Dependencies: P0-02. Check: `cd agent && uv run python -c "import whats_a_cv"`.
+- [x] **P0-07 — Add FastAPI health endpoint.** Create the smallest app exposing `GET /health` with a typed `{status: "ok"}` response. Dependencies: P0-06. Check: `cd agent && uv run python -m pytest tests/test_health.py`.
+- [x] **P0-08 — Containerize the agent service.** Add `agent/Dockerfile` with a non-root runtime and Uvicorn startup. Dependencies: P0-07. Check: `docker build -t whats-a-cv-agent ./agent`.
+- [x] **P0-09 — Scaffold Next.js web app.** Create `web/` with TypeScript, App Router, npm lockfile, lint, and no component framework. Dependencies: P0-02. Check: `cd web && npm run build`.
+- [x] **P0-10 — Add web health route.** Add `GET /api/health` returning `{status: "ok"}`. Dependencies: P0-09. Check: add and run the smallest route test or build-time smoke check.
+- [x] **P0-11 — Containerize the web app.** Add `web/Dockerfile` with development and production stages. Dependencies: P0-09. Check: `docker build -t whats-a-cv-web ./web`.
+- [x] **P0-12 — Compose the core services.** Add `docker-compose.yml` for web and agent with repository mounts, health checks, localhost ports, and persistent derived state only. Dependencies: P0-08, P0-11. Check: `docker compose config`.
+- [x] **P0-13 — Add the one-line launcher.** Add `make dev` to run the Compose development stack with build and hot reload. Dependencies: P0-12. Check: `make dev`, then both health endpoints return 200.
+- [x] **P0-14 — Add lifecycle commands.** Add safe `make stop`, `make test`, and `make clean`; clean may remove only documented derived state. Dependencies: P0-13. Check: inspect `make -n clean` and confirm no canonical directory can be targeted.
+- [x] **P0-15 — Document local startup.** Update `README.md` with prerequisites, `make dev`, URLs, optional API-key setup, and stop command. Dependencies: P0-13. Check: follow the documented startup from a stopped stack.
+- [x] **P0-16 — Skeleton review.** **Terra review.** Audit Phase 0 against the three ADRs and one-command requirement; fix only confirmed Phase 0 defects. Dependencies: P0-01 through P0-15. Check: `make test` and `docker compose config`.
 
 ## Phase 1 — Safe Markdown repository service
 
