@@ -220,6 +220,12 @@ def rank_evidence(state: GraphState, model: Any) -> GraphState:
     return state
 
 
+def validate_ranked_evidence(ranked: EvidenceSet, supplied: EvidenceSet) -> None:
+    allowed = {(item.requirement_id, item.source_path, item.excerpt) for item in supplied.candidates}
+    if any((item.requirement_id, item.source_path, item.excerpt) not in allowed for item in ranked.candidates):
+        raise ValueError("model returned evidence that was not supplied")
+
+
 def evidence_review(state: GraphState, decision: ReviewDecision | None = None) -> GraphState:
     if decision is None:
         state["interrupt"] = "evidence_review"
