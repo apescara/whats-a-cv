@@ -49,6 +49,14 @@ def model_factory(settings: ModelSettings | None = None):
     return ChatOpenAI(model=settings.model, api_key=settings.require_key(), reasoning_effort=settings.reasoning_effort)
 
 
+def structured_model(schema: type[BaseModel], settings: ModelSettings | None = None):
+    return model_factory(settings).with_structured_output(schema)
+
+
+def stream_model(settings: ModelSettings | None = None):
+    return model_factory(settings).astream
+
+
 class Requirement(BaseModel):
     id: str
     category: RequirementCategory
