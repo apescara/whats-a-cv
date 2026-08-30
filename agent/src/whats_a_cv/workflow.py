@@ -204,7 +204,8 @@ def retrieve_evidence(state: GraphState, root: Path) -> GraphState:
                 for line in record.body.splitlines():
                     if terms and len(terms & set(line.lower().split())) >= max(1, min(2, len(terms))):
                         candidates.append(EvidenceCandidate(requirement_id=requirement.id, source_path=summary.relative_path, section="body", excerpt=line.strip(), relevance_reason="lexical match", confidence=0.5))
-    state["evidence"] = EvidenceSet(candidates=candidates).model_dump()
+    unique = {(item.requirement_id, item.source_path, item.excerpt): item for item in candidates}
+    state["evidence"] = EvidenceSet(candidates=list(unique.values())).model_dump()
     return state
 
 
