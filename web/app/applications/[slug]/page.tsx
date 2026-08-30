@@ -1,0 +1,26 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+type Bundle = { slug: string; path: string; metadata: { company: string; role: string; location: string; date: string; language: string; source_url: string; retrieved: string; status: string; artifacts: { next_steps: string | null } }; files: string[]; extra_files: string[]; warnings: string[] };
+type Tab = "overview" | "job" | "cv" | "pdf" | "next-steps" | "files";
+
+export default function ApplicationPage({ params }: { params: Promise<{ slug: string }> }) {
+  const [slug, setSlug] = useState(""); const [bundle, setBundle] = useState<Bundle | null>(null); const [tab, setTab] = useState<Tab>("overview"); const [content, setContent] = useState(""); const [error, setError] = useState("");
+  useEffect(() => { params.then(({ slug: value }) => { setSlug(value); fetch(`/api/applications/${encodeURIComponent(value)}`).then((response) => response.ok ? response.json() : Promise.reject(new Error("Application not found."))).then(setBundle).catch((reason: Error) => setError(reason.message)); }); }, [params]);
+  useEffect(() => { if (!slug || !bundle || !["job", "cv", "next-steps"].includes(tab)) return; const file = tab === "job" ? "job-post.md" : tab === "cv" ? "cv.tex" : bundle.metadata.artifacts.next_steps; if (!file) { setContent(""); return; } fetch(`/api/applications/${encodeURIComponent(slug)}/${file}`).then((response) => response.ok ? response.text() : "Could not load this file.").then(setContent); }, [slug, bundle, tab]);
+  if (error) return <section><h1>Application</h1><p role="alert">{error}</p></section>;
+  if (!bundle) return <section><p role="status">Loading application…</p></section>;
+  const tabs: [Tab, string][] = [["overview", "Overview"], ["job", "Job post"], ["cv", "CV source"], ["pdf", "PDF"], ["next-steps", "Next steps"], ["files", "Files"]];
+  return <section><a href="/applications">← Applications</a><p className="eyebrow">{bundle.metadata.date || "Undated"}</p><h1>{bundle.metadata.role}</h1><p className="lede">{bundle.metadata.company} · {bundle.metadata.location || "Location not recorded"}</p>
+    <nav className="application-tabs" aria-label="Application sections">{tabs.map(([value, label]) => <button key={value} className="tab-button" aria-current={tab === value ? "page" : undefined} onClick={() => setTab(value)}>{label}</button>)}</nav>
+    {tab === "overview" && <div className="application-overview"><h2>Application overview</h2><dl className="record-fields"><div><dt>Status</dt><dd>{bundle.metadata.status || "Draft"}</dd></div><div><dt>Language</dt><dd>{bundle.metadata.language || "Not recorded"}</dd></div><div><dt>Retrieved</dt><dd>{bundle.metadata.retrieved || "Not recorded"}</dd></div><div><dt>Source</dt><dd>{bundle.metadata.source_url ? <a href={bundle.metadata.source_url} target="_blank" rel="noreferrer">Open source</a> : "Not recorded"}</dd></div></dl><h2>Artifact health</h2>{bundle.warnings.length ? <ul>{bundle.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul> : <p>All expected artifacts are present.</p>}<h2>Requirements</h2><p>Requirement summary will appear here when application analysis is available.</p></div>}
+    {tab === "job" && <ArtifactText title="Saved job post" content={content} download={`/api/applications/${slug}/job-post.md`} />}
+    {tab === "cv" && <ArtifactText title="CV source (read-only)" content={content} download={`/api/applications/${slug}/cv.tex`} />}
+    {tab === "next-steps" && <ArtifactText title="Next steps" content={content} download={bundle.metadata.artifacts.next_steps ? `/api/applications/${slug}/${bundle.metadata.artifacts.next_steps}` : undefined} />}
+    {tab === "pdf" && (bundle.files.includes("cv.pdf") ? <div className="pdf-panel"><iframe title="CV PDF preview" src={`/api/applications/${slug}/cv.pdf`} /><a className="button button-secondary" href={`/api/applications/${slug}/cv.pdf`} download>Download PDF</a></div> : <p>No PDF is available. Use the CV source tab instead.</p>)}
+    {tab === "files" && <div><h2>Bundle files</h2><ul className="file-list">{bundle.files.map((file) => <li key={file}><code>{file}</code></li>)}</ul>{bundle.extra_files.length > 0 && <p>Unapproved extra files are listed by the server but are not rendered.</p>}</div>}
+  </section>;
+}
+
+function ArtifactText({ title, content, download }: { title: string; content: string; download?: string }) { return <div className="artifact-panel"><div className="artifact-heading"><h2>{title}</h2>{download && <a className="button button-secondary" href={download} download>Download</a>}</div><pre className="artifact-text">{content}</pre></div>; }

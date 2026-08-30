@@ -4,11 +4,13 @@ from typing import Literal
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import Response
 from pydantic import BaseModel
 
 from .repository import (
     ApplicationMetadata, ProposalStore, RecordKind, RecordNotFoundError,
     list_applications, list_records, load_record, read_application,
+    read_artifact,
 )
 from .repository.service import related_expertise
 
@@ -61,6 +63,18 @@ def application(slug: str):
         raise HTTPException(status_code=404, detail=str(error)) from error
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@app.get("/applications/{slug}/{filename}")
+def application_artifact(slug: str, filename: str):
+    try:
+        path, content = read_artifact(REPOSITORY_ROOT, slug, filename)
+    except FileNotFoundError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    media_type = "application/pdf" if path.suffix == ".pdf" else "text/plain; charset=utf-8"
+    return Response(content, media_type=media_type, headers={"Content-Disposition": f'inline; filename="{path.name}"'})
 
 
 class ProposalRequest(BaseModel):

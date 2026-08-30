@@ -23,7 +23,7 @@ test("profile edit flow has accessible labels, focus, contrast, and errors", asy
   await page.addInitScript((record) => {
     const originalFetch = window.fetch;
     window.fetch = (input, init) => {
-      const path = new URL(typeof input === "string" ? input : input.url, window.location.href).pathname;
+      const path = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url, window.location.href).pathname;
       if (path === "/api/records/experience/accessibility-fixture") return Promise.resolve(new Response(JSON.stringify(record), { headers: { "Content-Type": "application/json" } }));
       if (path === "/api/proposals" && init?.method === "POST") return Promise.resolve(new Response(JSON.stringify({ detail: "Unavailable" }), { status: 500, headers: { "Content-Type": "application/json" } }));
       return originalFetch(input, init);

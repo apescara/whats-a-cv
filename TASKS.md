@@ -125,13 +125,13 @@ Status conventions:
 - [x] **P3-02 — Read application bundles.** List expected and extra files without interpreting untrusted content as instructions. Dependencies: P3-01, P1-09. Check: existing Option bundle is returned.
 - [x] **P3-03 — Support legacy next steps.** Read `next-steps.md` when `.mdx` is absent and prefer `.mdx` when both exist. Dependencies: P3-02. Check: two fixtures cover fallback and preference.
 - [x] **P3-04 — Expose application reads.** Add list and detail API endpoints. Dependencies: P3-02, P3-03. Check: API tests cover existing, missing, and malformed bundles.
-- [ ] **P3-05 — Build applications list.** Show date, company, role, status, PDF presence, and outstanding TODO indicator. Dependencies: P3-04, P2-04. Check: existing Option application appears.
-- [ ] **P3-06 — Build application overview.** Show metadata, artifact health, and requirement summary placeholder. Dependencies: P3-05. Check: missing optional files produce warnings, not crashes.
-- [ ] **P3-07 — Add job-post tab.** Render saved Markdown as inert content and link the source URL safely. Dependencies: P3-06. Check: embedded HTML/script fixture cannot execute.
-- [ ] **P3-08 — Add CV source tab.** Show editable-looking but read-only LaTeX with download. Dependencies: P3-06. Check: source downloads byte-for-byte.
-- [ ] **P3-09 — Add PDF tab.** Preview an existing PDF and offer download with a non-preview fallback. Dependencies: P3-06. Check: existing PDF returns the correct content type.
-- [ ] **P3-10 — Add next-steps tab.** Render `.mdx` or legacy `.md` as safe Markdown without executing components. Dependencies: P3-03, P3-06. Check: legacy file renders.
-- [ ] **P3-11 — Add files tab.** Show approved bundle files, sizes, and paths without browsing outside the bundle. Dependencies: P3-02, P3-06. Check: traversal-shaped filename fixture is rejected.
+- [x] **P3-05 — Build applications list.** Show date, company, role, status, PDF presence, and outstanding TODO indicator. Dependencies: P3-04, P2-04. Check: existing Option application appears.
+- [x] **P3-06 — Build application overview.** Show metadata, artifact health, and requirement summary placeholder. Dependencies: P3-05. Check: missing optional files produce warnings, not crashes.
+- [x] **P3-07 — Add job-post tab.** Render saved Markdown as inert content and link the source URL safely. Dependencies: P3-06. Check: embedded HTML/script fixture cannot execute.
+- [x] **P3-08 — Add CV source tab.** Show editable-looking but read-only LaTeX with download. Dependencies: P3-06. Check: source downloads byte-for-byte.
+- [x] **P3-09 — Add PDF tab.** Preview an existing PDF and offer download with a non-preview fallback. Dependencies: P3-06. Check: existing PDF returns the correct content type.
+- [x] **P3-10 — Add next-steps tab.** Render `.mdx` or legacy `.md` as safe Markdown without executing components. Dependencies: P3-03, P3-06. Check: legacy file renders.
+- [x] **P3-11 — Add files tab.** Show approved bundle files, sizes, and paths without browsing outside the bundle. Dependencies: P3-02, P3-06. Check: traversal-shaped filename fixture is rejected.
 - [ ] **P3-12 — Store application status.** Add an optional separate Markdown metadata file and proposal-based status updates. Dependencies: P1-25, P3-01. Check: updating status does not change generated artifacts.
 - [ ] **P3-13 — Add private application notes.** Store notes separately, keep them out of model context by default, and edit through proposals. Dependencies: P3-12. Check: read_application tool omits notes unless explicitly requested.
 - [ ] **P3-14 — Ingest pasted job text.** Add API and UI draft state for original text plus editable metadata; do not create an application yet. Dependencies: P2-03, P3-01. Check: pasted text survives page navigation in draft state.
