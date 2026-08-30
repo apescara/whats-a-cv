@@ -336,6 +336,8 @@ def review_payload(state: GraphState) -> dict[str, Any]:
 
 
 def finalize_application(root: Path, slug: str, files: dict[str, str], state: GraphState) -> Path:
+    if state.get("approvals", {}).get("final") is not True:
+        raise ValueError("final approval is required")
     errors = validate_artifacts(files, state)
     if errors:
         raise ValueError("cannot finalize invalid artifacts: " + ", ".join(errors))
