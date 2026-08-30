@@ -41,12 +41,18 @@ export default function RecordEditor({ record, kind }: { record: RecordData; kin
   const recordFields = kind === "education" ? educationFields : kind === "certifications" ? certificationFields : kind === "projects" ? projectFields : kind === "expertise" ? expertiseFields : kind === "languages" ? languageFields : experienceFields;
   const [values, setValues] = useState(record);
   const [message, setMessage] = useState("");
+  const [diff, setDiff] = useState("");
   const [preview, setPreview] = useState(false);
 
   const update = (name: string, value: string) => setValues((current) => ({ ...current, [name]: name === "evidence" ? (() => { try { return JSON.parse(value); } catch { return value; } })() : value }));
   const submit = async () => {
     const response = await fetch("/api/proposals", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ target_path: `${kind}/${String(record.slug)}.md`, proposed_content: markdown(values, recordFields) }) });
-    setMessage(response.ok ? "Proposal created for review." : "Could not create proposal.");
+    if (!response.ok) { setMessage("Could not create proposal."); return; }
+    const { id } = await response.json() as { id: number };
+    const review = await fetch(`/api/proposals/${id}`);
+    const proposal = await review.json() as { diff?: string };
+    setDiff(proposal.diff || "No changes.");
+    setMessage("Proposal ready for review.");
   };
 
   return <form className="record-editor" onSubmit={(event) => { event.preventDefault(); void submit(); }}>
@@ -57,6 +63,7 @@ export default function RecordEditor({ record, kind }: { record: RecordData; kin
     {preview && <pre className="markdown-preview">{markdown(values, recordFields)}</pre>}
     <button type="submit">Submit proposal</button>
     {message && <p role="status">{message}</p>}
+    {diff && <pre className="markdown-preview" aria-label="Proposal diff">{diff}</pre>}
   </form>;
 }
 
