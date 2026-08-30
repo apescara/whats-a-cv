@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from datetime import date
 from typing import Literal
 
@@ -17,7 +18,8 @@ from .repository import (
 )
 from .repository.service import related_expertise
 from .workflow import (CheckpointStore, ReviewDecision, continue_after_evidence, draft_requirements,
-                       evidence_review, ingest_job, new_state, checkpoint_store, retrieve_evidence, workflow_event)
+                       evidence_review, finalize_application, ingest_job, new_state, checkpoint_store,
+                       render_cv_source, render_job_post, render_next_steps_file, retrieve_evidence, workflow_event)
 
 def repository_root() -> Path:
     return Path(os.environ.get("WHATS_A_CV_REPOSITORY", Path(__file__).resolve().parents[3])).resolve()
@@ -178,6 +180,27 @@ def workflow_resume(thread_id: str, request: WorkflowResumeRequest):
             continue_after_evidence(state)
     CHECKPOINTS.save(state)
     return state
+
+
+@app.post("/workflow/{thread_id}/finalize")
+def workflow_finalize(thread_id: str):
+    state = CHECKPOINTS.load(thread_id)
+    if state is None:
+        raise HTTPException(status_code=404, detail="workflow not found")
+    state["approvals"] = {"final": True}
+    metadata = state["job"]["metadata"]
+    slug = re.sub(r"[^a-z0-9]+", "-", f"{metadata.get('date') or date.today().isoformat()}-{metadata['company']}-{metadata['role']}".lower()).strip("-")
+    files = {
+        "job-post.md": render_job_post(state),
+        "cv.tex": render_cv_source(state, REPOSITORY_ROOT / "TEMPLATE.tex"),
+        "next-steps.mdx": render_next_steps_file(state),
+    }
+    try:
+        path = finalize_application(REPOSITORY_ROOT, slug, files, state)
+    except (FileExistsError, ValueError) as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
+    CHECKPOINTS.save(state)
+    return {"slug": slug, "path": str(path.relative_to(REPOSITORY_ROOT))}
 
 
 @app.get("/workflow/{thread_id}/events")

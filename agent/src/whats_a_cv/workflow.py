@@ -268,6 +268,9 @@ def continue_after_evidence(state: GraphState) -> GraphState:
     claims = [DraftClaim(text=item.excerpt, evidence_ids=[str(index)]) for index, item in enumerate(candidates) if not approved or str(index) in approved]
     role = state["job"]["metadata"].get("role", "this role")
     state["drafts"] = {"cv": DraftBundle(summary=f"Candidate targeted for {role}.", claims=claims, skills=[]).model_dump()}
+    state["drafts"]["next_steps"] = NextSteps(
+        assessment="Draft generated from approved profile evidence.", timing="Review before applying."
+    ).model_dump()
     state["events"] = state.get("events", []) + [{"thread_id": state["thread_id"], "node": "draft_cv", "status": "completed"}]
     state["stage"] = "generation_complete"
     return state
