@@ -365,7 +365,7 @@ def compile_draft(root: Path, state: GraphState, files: dict[str, str]) -> Graph
         result = compile_latex(root, path.name) if (path / "cv.tex").exists() else {"status": "error", "error": "cv.tex not found"}
     finally:
         shutil.rmtree(path, ignore_errors=True)
-    state["compilation"] = {"status": result.get("status", "error"), "pages": result.get("pages"), "errors": [result.get("error", "")] if result.get("error") else []}
+    state["compilation"] = {"status": result.get("status", "error"), "pages": result.get("pages"), "errors": [str(result.get("error", ""))[:500]] if result.get("error") else []}
     return state
 
 
