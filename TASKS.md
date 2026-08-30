@@ -122,8 +122,8 @@ Status conventions:
 ## Phase 3 — Applications and PDF workspace
 
 - [x] **P3-01 — Define application metadata.** Add typed company, role, location, date, language, URL, retrieval date, status, and artifact paths. Dependencies: P1-02. Check: parse the existing application folder.
-- [ ] **P3-02 — Read application bundles.** List expected and extra files without interpreting untrusted content as instructions. Dependencies: P3-01, P1-09. Check: existing Option bundle is returned.
-- [ ] **P3-03 — Support legacy next steps.** Read `next-steps.md` when `.mdx` is absent and prefer `.mdx` when both exist. Dependencies: P3-02. Check: two fixtures cover fallback and preference.
+- [x] **P3-02 — Read application bundles.** List expected and extra files without interpreting untrusted content as instructions. Dependencies: P3-01, P1-09. Check: existing Option bundle is returned.
+- [x] **P3-03 — Support legacy next steps.** Read `next-steps.md` when `.mdx` is absent and prefer `.mdx` when both exist. Dependencies: P3-02. Check: two fixtures cover fallback and preference.
 - [ ] **P3-04 — Expose application reads.** Add list and detail API endpoints. Dependencies: P3-02, P3-03. Check: API tests cover existing, missing, and malformed bundles.
 - [ ] **P3-05 — Build applications list.** Show date, company, role, status, PDF presence, and outstanding TODO indicator. Dependencies: P3-04, P2-04. Check: existing Option application appears.
 - [ ] **P3-06 — Build application overview.** Show metadata, artifact health, and requirement summary placeholder. Dependencies: P3-05. Check: missing optional files produce warnings, not crashes.
