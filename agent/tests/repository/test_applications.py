@@ -1,0 +1,56 @@
+from pathlib import Path
+
+import pytest
+
+from whats_a_cv.repository import (
+    ApplicationMetadata, list_applications, normalize_job_html, read_application,
+)
+
+
+def make_application(root: Path, *, legacy: bool = True) -> Path:
+    path = root / "applications" / "2026-08-27-option-data-engineer"
+    path.mkdir(parents=True)
+    (path / "job-post.md").write_text(
+        '---\ncompany: Option\nrole: Data Engineer\nlocation: LATAM\n'
+        'date: 2026-08-27\nlanguage: es\nsource_url: https://example.test\n'
+        'retrieved: 2026-08-27\nstatus: drafting\n---\n# Job\n', encoding="utf-8"
+    )
+    if legacy:
+        (path / "next-steps.md").write_text("# Next steps\n", encoding="utf-8")
+    return path
+
+
+def test_application_metadata_and_existing_bundle_round_trip(tmp_path: Path) -> None:
+    path = make_application(tmp_path)
+    (path / "cv.tex").write_text("\\documentclass{article}", encoding="utf-8")
+    bundle = read_application(tmp_path, path.name)
+
+    assert ApplicationMetadata.model_validate(bundle.metadata.model_dump()) == bundle.metadata
+    assert bundle.metadata.company == "Option"
+    assert bundle.metadata.artifacts.next_steps == "next-steps.md"
+    assert list_applications(tmp_path)[0].has_pdf is False
+
+
+def test_application_bundle_reports_extra_files(tmp_path: Path) -> None:
+    path = make_application(tmp_path)
+    (path / "unexpected.txt").write_text("not an artifact", encoding="utf-8")
+
+    assert read_application(tmp_path, path.name).extra_files == ["unexpected.txt"]
+
+
+def test_missing_application_and_invalid_slug_are_safe(tmp_path: Path) -> None:
+    with pytest.raises(FileNotFoundError):
+        read_application(tmp_path, "missing")
+    with pytest.raises(ValueError):
+        read_application(tmp_path, "../outside")
+
+
+def test_legacy_next_steps_fallback_and_mdx_preference(tmp_path: Path) -> None:
+    path = make_application(tmp_path)
+    assert read_application(tmp_path, path.name).metadata.artifacts.next_steps == "next-steps.md"
+    (path / "next-steps.mdx").write_text("# Canonical\n", encoding="utf-8")
+    assert read_application(tmp_path, path.name).metadata.artifacts.next_steps == "next-steps.mdx"
+
+
+def test_hostile_html_is_inert_text() -> None:
+    assert "<script" not in normalize_job_html('<h1>Role</h1><script>alert(1)</script>Text')
