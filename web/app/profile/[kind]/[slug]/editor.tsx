@@ -41,6 +41,7 @@ export default function RecordEditor({ record, kind }: { record: RecordData; kin
   const recordFields = kind === "education" ? educationFields : kind === "certifications" ? certificationFields : kind === "projects" ? projectFields : kind === "expertise" ? expertiseFields : kind === "languages" ? languageFields : experienceFields;
   const [values, setValues] = useState(record);
   const [message, setMessage] = useState("");
+  const [preview, setPreview] = useState(false);
 
   const update = (name: string, value: string) => setValues((current) => ({ ...current, [name]: name === "evidence" ? (() => { try { return JSON.parse(value); } catch { return value; } })() : value }));
   const submit = async () => {
@@ -52,6 +53,8 @@ export default function RecordEditor({ record, kind }: { record: RecordData; kin
     <h2>Edit {kind}</h2>
     {recordFields.map(({ name, label, type }) => <label key={name}>{label}<input type={type || "text"} value={name === "evidence" ? JSON.stringify(values[name] || []) : String(values[name] || "")} onChange={(event) => update(name, event.target.value)} /></label>)}
     <label>Markdown details<textarea rows={10} value={String(values.body || "")} onChange={(event) => update("body", event.target.value)} /></label>
+    <button type="button" onClick={() => setPreview((value) => !value)}>{preview ? "Hide" : "Show"} Markdown preview</button>
+    {preview && <pre className="markdown-preview">{markdown(values, recordFields)}</pre>}
     <button type="submit">Submit proposal</button>
     {message && <p role="status">{message}</p>}
   </form>;
