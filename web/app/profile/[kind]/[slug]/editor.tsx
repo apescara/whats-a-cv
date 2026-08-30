@@ -20,14 +20,18 @@ const certificationFields: Field[] = [
   { name: "issued", label: "Issued", type: "date" }, { name: "expires", label: "Expires", type: "date" },
   { name: "credential_id", label: "Credential ID" }, { name: "url", label: "URL" },
 ];
+const projectFields: Field[] = [
+  { name: "name", label: "Name" }, { name: "role", label: "Role" }, { name: "url", label: "URL" },
+  { name: "start", label: "Start", type: "date" }, { name: "end", label: "End", type: "date" },
+];
 
 function markdown(values: RecordData, recordFields: Field[]) {
   const header = recordFields.map(({ name }) => `${name}: ${JSON.stringify(values[name] || "")}`).join("\n");
   return `---\n${header}\n---\n${String(values.body || "")}`;
 }
 
-export default function RecordEditor({ record, kind }: { record: RecordData; kind: "experience" | "education" | "certifications" }) {
-  const recordFields = kind === "education" ? educationFields : kind === "certifications" ? certificationFields : experienceFields;
+export default function RecordEditor({ record, kind }: { record: RecordData; kind: "experience" | "education" | "certifications" | "projects" }) {
+  const recordFields = kind === "education" ? educationFields : kind === "certifications" ? certificationFields : kind === "projects" ? projectFields : experienceFields;
   const [values, setValues] = useState(record);
   const [message, setMessage] = useState("");
 
