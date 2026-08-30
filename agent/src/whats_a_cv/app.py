@@ -16,8 +16,8 @@ from .repository import (
     JobDraft, fetch_job_url, compile_latex,
 )
 from .repository.service import related_expertise
-from .workflow import (CheckpointStore, ReviewDecision, evidence_review, ingest_job,
-                       new_state, checkpoint_store, retrieve_evidence, workflow_event)
+from .workflow import (CheckpointStore, ReviewDecision, draft_requirements, evidence_review,
+                       ingest_job, new_state, checkpoint_store, retrieve_evidence, workflow_event)
 
 def repository_root() -> Path:
     return Path(os.environ.get("WHATS_A_CV_REPOSITORY", Path(__file__).resolve().parents[3])).resolve()
@@ -147,9 +147,7 @@ class WorkflowStartRequest(BaseModel):
 def workflow_start(request: WorkflowStartRequest):
     state = new_state(request.thread_id)
     ingest_job(state, REPOSITORY_ROOT, {"text": request.text, "metadata": request.metadata.model_dump()})
-    # Requirement extraction is an AI step; keep the draft resumable when it is
-    # not configured instead of sending an incomplete state into retrieval.
-    state["requirements"] = {"requirements": []}
+    state["requirements"] = draft_requirements(request.text).model_dump()
     retrieve_evidence(state, REPOSITORY_ROOT)
     state["interrupt"] = "evidence_review"
     workflow_event(state, "evidence_review", "waiting")

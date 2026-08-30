@@ -189,6 +189,13 @@ def ingest_job(state: GraphState, root: Path, job: dict[str, Any]) -> GraphState
     return state
 
 
+def draft_requirements(text: str) -> RequirementSet:
+    """Create reviewable requirements before an AI model is configured."""
+    lines = [line.strip(" -*•\t") for line in text.splitlines() if line.strip()]
+    selected = [line for line in lines if any(word in line.lower() for word in ("require", "experience", "skills", "python", "sql", "must-have", "responsibil"))]
+    return RequirementSet(requirements=[Requirement(id=f"req-{index}", category="must-have", text=line, source_excerpt=line) for index, line in enumerate(selected[:20], 1)])
+
+
 def extract_requirements(state: GraphState, model: Any) -> GraphState:
     prompt = state["job"]
     result = model.invoke(REQUIREMENTS_PROMPT + "\n" + json.dumps(prompt))
