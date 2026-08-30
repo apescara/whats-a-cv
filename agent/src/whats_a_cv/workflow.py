@@ -7,6 +7,7 @@ import sqlite3
 import tempfile
 import shutil
 import uuid
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, TypedDict
@@ -208,14 +209,15 @@ def retrieve_evidence(state: GraphState, root: Path) -> GraphState:
     requirements = RequirementSet.model_validate(state["requirements"])
     candidates: list[EvidenceCandidate] = []
     for requirement in requirements.requirements:
-        terms = {word.lower() for word in requirement.text.split() if len(word) > 2}
+        terms = {word.lower() for word in re.findall(r"[a-z0-9+#.-]+", requirement.text.lower()) if len(word) > 2}
         for kind in RecordKind:
             for summary in list_records(root, kind):
                 if not summary.valid:
                     continue
                 record = load_record(root, kind, summary.slug)
-                for line in record.body.splitlines():
-                    if terms and len(terms & set(line.lower().split())) >= max(1, min(2, len(terms))):
+                for line in [record.body, getattr(record, "name", ""), getattr(record, "role", "")]:
+                    words = set(re.findall(r"[a-z0-9+#.-]+", line.lower()))
+                    if terms and len(terms & words) >= max(1, min(2, len(terms))):
                         candidates.append(EvidenceCandidate(requirement_id=requirement.id, source_path=summary.relative_path, section="body", excerpt=line.strip(), relevance_reason="lexical match", confidence=0.5))
     unique = {(item.requirement_id, item.source_path, item.excerpt): item for item in candidates}
     state["evidence"] = EvidenceSet(candidates=list(unique.values())).model_dump()
