@@ -4,6 +4,8 @@ import sys
 
 
 user = pwd.getpwnam("app")
+os.environ["HOME"] = user.pw_dir
+os.environ["UV_CACHE_DIR"] = "/tmp/uv-cache"
 state = "/workspace/.whats-a-cv"
 os.makedirs(state, exist_ok=True)
 os.chown(state, user.pw_uid, user.pw_gid)
