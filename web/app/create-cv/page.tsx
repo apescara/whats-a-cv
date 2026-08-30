@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Draft = { text: string; company: string; role: string; location: string; language: string; source_url: string; retrieved: string };
 const emptyDraft: Draft = { text: "", company: "", role: "", location: "", language: "", source_url: "", retrieved: "" };
 
 export default function CreateCvPage() {
-  const [draft, setDraft] = useState<Draft>(() => { if (typeof window === "undefined") return emptyDraft; try { return { ...emptyDraft, ...JSON.parse(sessionStorage.getItem("job-draft") || "{}") }; } catch { return emptyDraft; } });
+  const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [message, setMessage] = useState("");
+  useEffect(() => { try { const saved = sessionStorage.getItem("job-draft"); if (saved) setDraft({ ...emptyDraft, ...JSON.parse(saved) }); } catch { /* Ignore malformed browser-only draft state. */ } }, []);
   const update = (key: keyof Draft, value: string) => setDraft((current) => { const next = { ...current, [key]: value }; sessionStorage.setItem("job-draft", JSON.stringify(next)); return next; });
   const fetchUrl = async () => { const response = await fetch("/api/job-url", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: draft.source_url }) }); const result = await response.json(); if (!response.ok) { setMessage(result.detail || "Could not fetch this URL."); return; } setDraft((current) => { const next = { ...current, text: result.text, retrieved: result.retrieved }; sessionStorage.setItem("job-draft", JSON.stringify(next)); return next; }); setMessage("Job text fetched. Review it before continuing."); };
   return <section className="form-page"><h1>Start an application</h1><p className="lede">Paste a job post or fetch a public URL. This creates a draft only; no application folder is written.</p>
