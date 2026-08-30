@@ -6,7 +6,10 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from .repository import ProposalStore, RecordKind, RecordNotFoundError, list_records, load_record
+from .repository import (
+    ApplicationMetadata, ProposalStore, RecordKind, RecordNotFoundError,
+    list_applications, list_records, load_record, read_application,
+)
 from .repository.service import related_expertise
 
 def repository_root() -> Path:
@@ -43,6 +46,21 @@ def record(kind: RecordKind, slug: str):
         return result
     except RecordNotFoundError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@app.get("/applications")
+def applications():
+    return list_applications(REPOSITORY_ROOT)
+
+
+@app.get("/applications/{slug}")
+def application(slug: str):
+    try:
+        return read_application(REPOSITORY_ROOT, slug)
+    except FileNotFoundError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
 
 
 class ProposalRequest(BaseModel):
