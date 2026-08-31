@@ -17,9 +17,11 @@ from .repository import (
     JobDraft, fetch_job_url, compile_latex,
 )
 from .repository.service import related_expertise
-from .workflow import (CheckpointStore, ReviewDecision, continue_after_evidence, draft_requirements,
-                       evidence_review, finalize_application, ingest_job, new_state, checkpoint_store,
-                       render_cv_source, render_job_post, render_next_steps_file, retrieve_evidence, workflow_event)
+from .workflow import (CheckpointStore, DraftBundle, EvidenceSet, NextSteps, RequirementSet, ReviewDecision,
+                       continue_after_evidence, draft_cv, draft_next_steps, draft_requirements, evidence_review,
+                       extract_requirements, finalize_application, ingest_job, new_state, checkpoint_store,
+                       profile_context, rank_evidence, render_cv_source, render_job_post, render_next_steps_file,
+                       retrieve_evidence, structured_model, workflow_event)
 
 def repository_root() -> Path:
     return Path(os.environ.get("WHATS_A_CV_REPOSITORY", Path(__file__).resolve().parents[3])).resolve()
@@ -35,6 +37,10 @@ class HealthResponse(BaseModel):
 
 
 app = FastAPI()
+
+
+def ai_enabled() -> bool:
+    return any(os.getenv(name) for name in ("OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_API_KEY"))
 
 
 @app.get("/health", response_model=HealthResponse)
@@ -149,8 +155,13 @@ class WorkflowStartRequest(BaseModel):
 def workflow_start(request: WorkflowStartRequest):
     state = new_state(request.thread_id)
     ingest_job(state, REPOSITORY_ROOT, {"text": request.text, "metadata": request.metadata.model_dump()})
-    state["requirements"] = draft_requirements(request.text, REPOSITORY_ROOT).model_dump()
+    if ai_enabled():
+        extract_requirements(state, structured_model(RequirementSet, task="requirements"))
+    else:
+        state["requirements"] = draft_requirements(request.text, REPOSITORY_ROOT).model_dump()
     retrieve_evidence(state, REPOSITORY_ROOT)
+    if ai_enabled():
+        rank_evidence(state, structured_model(EvidenceSet, task="evidence"))
     state["interrupt"] = "evidence_review"
     workflow_event(state, "evidence_review", "waiting")
     CHECKPOINTS.save(state)
@@ -177,7 +188,13 @@ def workflow_resume(thread_id: str, request: WorkflowResumeRequest):
     if state.get("interrupt") == "evidence_review":
         evidence_review(state, request.decision)
         if request.decision and request.decision.action == "approve":
-            continue_after_evidence(state)
+            if ai_enabled():
+                draft_cv(state, structured_model(DraftBundle, task="cv"), profile_context(REPOSITORY_ROOT))
+                draft_next_steps(state, structured_model(NextSteps, task="next_steps"))
+                state["stage"] = "generation_complete"
+                workflow_event(state, "draft_cv")
+            else:
+                continue_after_evidence(state)
     CHECKPOINTS.save(state)
     return state
 

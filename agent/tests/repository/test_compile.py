@@ -24,3 +24,11 @@ def test_compile_uses_rooted_working_directory_and_fixed_args(tmp_path: Path, mo
     assert result["status"] == "ok"
     assert calls["args"] == ["latexmk", "-pdf", "-interaction=nonstopmode", "-halt-on-error", "cv.tex"]
     assert calls["kwargs"]["cwd"] == path
+
+
+def test_compile_reports_missing_latexmk(tmp_path: Path, monkeypatch) -> None:
+    path = tmp_path / "applications" / "role"
+    path.mkdir(parents=True)
+    (path / "cv.tex").write_text("\\documentclass{article}", encoding="utf-8")
+    monkeypatch.setattr(applications.subprocess, "run", lambda *_args, **_kwargs: (_ for _ in ()).throw(FileNotFoundError()))
+    assert compile_latex(tmp_path, "role") == {"status": "error", "error": "LaTeX compiler (latexmk) is not installed"}

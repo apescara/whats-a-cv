@@ -1,0 +1,72 @@
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\moderncvstyle{banking}
+\moderncvcolor{blue}
+\usepackage[scale=0.90]{geometry}
+\nopagenumbers{}
+
+\name{Andrés}{Pescara Montero}
+\title{Data Engineer}
+\address{Viña del Mar, Chile}{}{}
+\phone[mobile]{+56 990026042}
+\email{andrespescara@gmail.com}
+\social[linkedin]{apescaram}
+\social[github]{apescara}
+
+\begin{document}
+
+\makecvtitle
+
+\section{Perfil profesional}
+Data Engineer con más de siete años desarrollando y productivizando soluciones de datos y Machine Learning. Diseña arquitecturas escalables en GCP, integra fuentes batch, APIs y streaming, y automatiza pipelines con Python, SQL, Airflow y dbt. Experiencia en CI/CD, gobierno, eficiencia de costos, liderazgo técnico y colaboración con Data Science y negocio.
+
+\section{Experiencia}
+\cventry{jul. 2025--actualidad}{Machine Learning Engineer}{Sodimac}{Chile}{}{
+  \begin{itemize}
+    \item Redujo de siete a dos minutos la duración promedio del pipeline de CI en Cloud Build mediante imágenes Docker base, Bash, uv y una actualización controlada de Python.
+    \item Administra con Terraform Cloud Composer, GKE y Vertex AI Workbench en una plataforma de cerca de 200 repositorios, 260 DAGs de Airflow y más de 40 APIs.
+    \item Estandarizó el feature engineering con dbt, implementó selección dinámica de máquinas según consumo histórico y gestiona el backlog y paneles de gasto del equipo de Data Engineering.
+  \end{itemize}
+}
+
+\cventry{nov. 2023--jun. 2025}{Data Engineer}{The Wild Brands}{Chile y México}{}{
+  \begin{itemize}
+    \item Diseñó desde cero un Data Lake en GCP para cerca de 150 usuarios, con ambientes productivos y de prueba, capas raw--stage--share y un modelo dbt de más de 200 entidades.
+    \item Integró SAP HANA, Odoo, Airbyte y Shopify; combinó procesos batch con webhooks procesados mediante Pub/Sub y Dataflow bajo un modelo de datos común.
+    \item Gestionó la infraestructura con Terraform, desarrolló pipelines de GitHub Actions y lideró integrantes junior a medida que creció el equipo.
+  \end{itemize}
+}
+
+\cventry{jul. 2023--oct. 2023}{Senior Data Engineer}{Falabella Tecnologías Corporativas}{Chile}{}{
+  \begin{itemize}
+    \item Mantuvo pipelines de datos y ML en Python, Docker, Cloud Composer, GKE, BigQuery y Cloud Storage para múltiples equipos de Data Science; asumió interinamente el liderazgo técnico.
+  \end{itemize}
+}
+
+\cventry{mar. 2021--jul. 2023}{Senior Data Engineer}{Sodimac}{Chile}{}{
+  \begin{itemize}
+    \item Diseñó una plataforma de ML con Docker, Cloud Composer y GKE; migró Airflow 1 a 2 sin interrupciones y creó operadores para prevenir fallas por cuotas.
+    \item Implementó CI/CD con GitLab CI y creó en BigQuery un repositorio de features que integraba APIs, web scraping e indicadores externos.
+  \end{itemize}
+}
+
+\cventry{jun. 2019--feb. 2021}{Consultor}{Management Solutions}{Chile}{}{
+  \begin{itemize}
+    \item Desarrolló ETLs y controles de calidad para banca con SQL, DataStage, Control-M y DB2; implementó pipelines regulatorios bronze--silver--gold en SQL Server y una prueba de concepto en BigQuery.
+  \end{itemize}
+}
+
+\section{Competencias técnicas}
+\cvitem{Datos}{Python, SQL, Airflow/Cloud Composer, BigQuery, dbt, Dataflow, Pub/Sub, Airbyte, modelado y calidad de datos}
+\cvitem{Cloud y DevOps}{GCP, Docker, Kubernetes/GKE, Terraform, Cloud Build, GitLab CI, GitHub Actions, Git, Cloud Functions, Cloud Run}
+\cvitem{Prácticas}{Arquitectura de Data Lake, CI/CD, FinOps, MLOps, liderazgo técnico y mentoría}
+
+\section{Educación y certificaciones}
+\cventry{2014--2019}{Ingeniería Civil Informática}{Universidad Adolfo Ibáñez}{}{}{}
+\cvitem{2025--2027}{Professional Machine Learning Engineer — Google Cloud}
+\cvitem{2019}{Professional Data Engineer — Google Cloud (vigencia finalizada en 2021)}
+
+\section{Idiomas}
+\cvitem{}{Español nativo; inglés avanzado (First Certificate in English, Cambridge, 2012)}
+
+\end{document}

@@ -13,6 +13,16 @@ copy `.env.example` to `.env` and add a supported provider key:
 cp .env.example .env
 ```
 
+Choose a provider per workflow role with `provider:model`, for example:
+
+```sh
+WHATS_A_CV_MODEL=openai:gpt-5.6-luna
+WHATS_A_CV_CV_MODEL=anthropic:claude-sonnet-4-5-20250929
+WHATS_A_CV_NEXT_STEPS_MODEL=google:gemini-2.5-flash
+```
+
+Available roles are `REQUIREMENTS`, `EVIDENCE`, `CV`, and `NEXT_STEPS`; unset roles inherit `WHATS_A_CV_MODEL`.
+
 Start the development stack with:
 
 ```sh

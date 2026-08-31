@@ -230,6 +230,8 @@ def compile_latex(root: Path, slug: str, *, timeout: float = 30) -> dict:
     started = time.monotonic()
     try:
         result = subprocess.run(["latexmk", "-pdf", "-interaction=nonstopmode", "-halt-on-error", source.name], cwd=path, capture_output=True, text=True, timeout=timeout, check=False)
+    except FileNotFoundError:
+        return {"status": "error", "error": "LaTeX compiler (latexmk) is not installed"}
     except subprocess.TimeoutExpired as error:
         return {"status": "error", "error": "LaTeX compilation timed out", "output": (error.stderr or "")[-4000:]}
     output = (result.stdout + "\n" + result.stderr)[-4000:]
