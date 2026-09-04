@@ -17,6 +17,7 @@ from .applications import (
     ApplicationBundle, ApplicationMetadata, ApplicationSummary, ArtifactPaths, JobDraft,
     compile_latex, fetch_job_url, list_applications, normalize_job_html,
     read_application, read_artifact, render_inert_markdown, application_metadata_proposal,
+    delete_draft_application,
 )
 
 __all__ = [
@@ -39,4 +40,5 @@ __all__ = [
     "list_applications", "read_application", "read_artifact", "render_inert_markdown",
     "fetch_job_url", "normalize_job_html", "compile_latex",
     "application_metadata_proposal",
+    "delete_draft_application",
 ]

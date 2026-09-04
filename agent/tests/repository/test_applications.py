@@ -6,7 +6,7 @@ from urllib.request import Request
 import pytest
 
 from whats_a_cv.repository import (
-    ApplicationMetadata, list_applications, normalize_job_html, read_application,
+    ApplicationMetadata, delete_draft_application, list_applications, normalize_job_html, read_application,
 )
 
 
@@ -53,6 +53,18 @@ def test_legacy_next_steps_fallback_and_mdx_preference(tmp_path: Path) -> None:
     assert read_application(tmp_path, path.name).metadata.artifacts.next_steps == "next-steps.md"
     (path / "next-steps.mdx").write_text("# Canonical\n", encoding="utf-8")
     assert read_application(tmp_path, path.name).metadata.artifacts.next_steps == "next-steps.mdx"
+
+
+def test_only_draft_applications_can_be_deleted(tmp_path: Path) -> None:
+    path = make_application(tmp_path)
+    delete_draft_application(tmp_path, path.name)
+    assert not path.exists()
+
+    path = make_application(tmp_path)
+    job_post = path / "job-post.md"
+    job_post.write_text(job_post.read_text(encoding="utf-8").replace("status: drafting", "status: submitted"), encoding="utf-8")
+    with pytest.raises(ValueError, match="only draft"):
+        delete_draft_application(tmp_path, path.name)
 
 
 def test_hostile_html_is_inert_text() -> None:

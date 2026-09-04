@@ -14,9 +14,9 @@ from .repository import (
     ApplicationMetadata, ProposalStore, RecordKind, RecordNotFoundError,
     list_applications, list_records, load_record, read_application,
     read_artifact, application_metadata_proposal,
-    JobDraft, fetch_job_url, compile_latex,
+    JobDraft, fetch_job_url, compile_latex, delete_draft_application,
 )
-from .repository.service import related_expertise
+from .repository.service import related_experience, related_expertise
 from .workflow import (CheckpointStore, DraftBundle, EvidenceSet, NextSteps, RequirementSet, ReviewDecision,
                        continue_after_evidence, draft_cv, draft_next_steps, draft_requirements, evidence_review,
                        extract_requirements, finalize_application, ingest_job, new_state, checkpoint_store,
@@ -59,6 +59,8 @@ def record(kind: RecordKind, slug: str):
         loaded_record = load_record(REPOSITORY_ROOT, kind, slug)
         result = loaded_record.model_dump()
         result["related_expertise"] = related_expertise(REPOSITORY_ROOT, loaded_record)
+        if kind is RecordKind.EXPERTISE:
+            result["related_experience"] = related_experience(REPOSITORY_ROOT, loaded_record)
         return result
     except RecordNotFoundError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
@@ -77,6 +79,16 @@ def application(slug: str, include_notes: bool = False):
         raise HTTPException(status_code=404, detail=str(error)) from error
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@app.delete("/applications/{slug}", status_code=204)
+def delete_application(slug: str):
+    try:
+        delete_draft_application(REPOSITORY_ROOT, slug)
+    except FileNotFoundError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except ValueError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
 
 
 COMPILE_RESULTS: dict[str, dict] = {}

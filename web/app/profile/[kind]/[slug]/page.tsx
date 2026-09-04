@@ -5,7 +5,7 @@ import type { components } from "../../../../lib/api.generated";
 import RecordEditor, { ContactEditor } from "./editor";
 
 type RecordKind = components["schemas"]["RecordKind"];
-type RecordData = { slug: string; body?: string; relative_path?: string; related_expertise?: { slug: string; name: string }[]; [key: string]: unknown };
+type RecordData = { slug: string; body?: string; relative_path?: string; related_expertise?: { slug: string; name: string }[]; related_experience?: { slug: string; role: string; company: string }[]; [key: string]: unknown };
 const recordKinds: RecordKind[] = ["contact", "experience", "education", "certifications", "projects", "expertise", "languages"];
 
 export default function RecordDetailPage({ params }: { params: Promise<{ kind: string; slug: string }> }) {
@@ -32,7 +32,7 @@ export default function RecordDetailPage({ params }: { params: Promise<{ kind: s
   if (state === "loading") return <p role="status">Loading record…</p>;
   if (state === "error" || !record) return <p role="alert">Record not found.</p>;
 
-  const fields = Object.entries(record).filter(([key, value]) => value !== "" && !["slug", "body", "relative_path", "related_expertise", ...(record.type ? ["value"] : [])].includes(key));
+  const fields = Object.entries(record).filter(([key, value]) => value !== "" && !["slug", "body", "relative_path", "evidence", "related_expertise", "related_experience", ...(record.type ? ["value"] : [])].includes(key));
   return (
     <article>
       <a href="/profile">← Profile</a>
@@ -44,8 +44,9 @@ export default function RecordDetailPage({ params }: { params: Promise<{ kind: s
           {fields.map(([key, value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{typeof value === "string" ? value : JSON.stringify(value)}</dd></div>)}
         </dl>
       </section>
-      {Array.isArray(record.evidence) && <section aria-labelledby="evidence-title"><h2 id="evidence-title">Evidence</h2><ul>{record.evidence.map((item, index) => { const evidence = item as { text?: string; source?: { relative_path?: string } }; const match = evidence.source?.relative_path?.match(/^(contact|experience|education|certifications|projects|expertise|languages)\/([^/]+)\.md$/); return <li key={index}>{match ? <a href={`/profile/${match[1]}/${match[2]}`}>{evidence.text}</a> : evidence.text}</li>; })}</ul></section>}
-      {record.related_expertise?.length ? <section aria-labelledby="linked-skills-title"><h2 id="linked-skills-title">Linked skills</h2><ul>{record.related_expertise.map((skill) => <li key={skill.slug}><a href={`/profile/expertise/${skill.slug}`}>{skill.name}</a></li>)}</ul></section> : null}
+      {Array.isArray(record.evidence) && record.evidence.length > 0 && <section aria-labelledby="evidence-title"><h2 id="evidence-title">Evidence</h2><ul>{record.evidence.map((item, index) => { const evidence = item as { text?: string; source?: { relative_path?: string } }; const match = evidence.source?.relative_path?.match(/^(contact|experience|education|certifications|projects|expertise|languages)\/([^/]+)\.md$/); return <li key={index}>{match ? <a href={`/profile/${match[1]}/${match[2]}`}>{evidence.text}</a> : evidence.text}</li>; })}</ul></section>}
+      {record.related_expertise?.length ? <section className="related-records" aria-labelledby="linked-skills-title"><h2 id="linked-skills-title">Expertise used here</h2><div className="expertise-links">{record.related_expertise.map((skill) => <a className="expertise-link" href={`/profile/expertise/${skill.slug}`} key={skill.slug}>{skill.name}</a>)}</div></section> : null}
+      {record.related_experience?.length ? <section className="related-records" aria-labelledby="linked-experience-title"><h2 id="linked-experience-title">Used in experience</h2><div className="experience-links">{record.related_experience.map((experience) => <a className="experience-link" href={`/profile/experience/${experience.slug}`} key={experience.slug}><strong>{experience.role}</strong><span>{experience.company}</span></a>)}</div></section> : null}
       {record.body && <pre className="markdown-preview">{String(record.body)}</pre>}
       {record.type ? <ContactEditor record={record} /> : record.role && record.company ? <RecordEditor record={record} kind="experience" /> : record.qualification ? <RecordEditor record={record} kind="education" /> : record.issuer ? <RecordEditor record={record} kind="certifications" /> : record.category ? <RecordEditor record={record} kind="expertise" /> : record.language ? <RecordEditor record={record} kind="languages" /> : record.name ? <RecordEditor record={record} kind="projects" /> : null}
     </article>

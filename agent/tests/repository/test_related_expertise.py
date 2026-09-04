@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from whats_a_cv.repository import RecordKind, load_record
-from whats_a_cv.repository.service import related_expertise, sort_date
+from whats_a_cv.repository.service import related_experience, related_expertise, sort_date
 
 
 def test_related_expertise_uses_only_the_skills_section(tmp_path: Path) -> None:
@@ -21,6 +21,8 @@ def test_related_expertise_uses_only_the_skills_section(tmp_path: Path) -> None:
     record = load_record(tmp_path, RecordKind.EXPERIENCE, "role")
 
     assert related_expertise(tmp_path, record) == [{"slug": "python", "name": "Python"}]
+    expertise = load_record(tmp_path, RecordKind.EXPERTISE, "python")
+    assert related_experience(tmp_path, expertise) == [{"slug": "role", "role": "Engineer", "company": "Acme"}]
 
 
 def test_sort_date_normalizes_supported_record_dates() -> None:

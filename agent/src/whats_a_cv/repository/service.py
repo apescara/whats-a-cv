@@ -101,6 +101,18 @@ def related_expertise(root: Path, record: Record) -> list[dict[str, str]]:
     return linked
 
 
+def related_experience(root: Path, expertise: ExpertiseRecord) -> list[dict[str, str]]:
+    """Return experience records whose Skills section names this expertise."""
+    linked = []
+    for summary in list_records(root, RecordKind.EXPERIENCE):
+        if not summary.valid:
+            continue
+        experience = load_record(root, RecordKind.EXPERIENCE, summary.slug)
+        if any(item["slug"] == expertise.slug for item in related_expertise(root, experience)):
+            linked.append({"slug": summary.slug, "role": experience.role, "company": experience.company})
+    return linked
+
+
 def validate_profile(root: Path) -> list[RecordSummary]:
     return [summary for kind in RecordKind for summary in list_records(root, kind) if not summary.valid]
 

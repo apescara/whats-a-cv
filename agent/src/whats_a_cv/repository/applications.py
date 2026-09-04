@@ -3,6 +3,7 @@ from __future__ import annotations
 import html
 import ipaddress
 import re
+import shutil
 import socket
 import subprocess
 import tempfile
@@ -152,6 +153,15 @@ def list_applications(root: Path) -> list[ApplicationSummary]:
         except (ValueError, OSError):
             continue
     return result
+
+
+def delete_draft_application(root: Path, slug: str) -> None:
+    path = _application_path(root, slug)
+    if not path.is_dir() or path.is_symlink():
+        raise FileNotFoundError(f"application not found: {slug}")
+    if _metadata(path).status.strip().lower() not in {"", "draft", "drafting"}:
+        raise ValueError("only draft applications can be deleted")
+    shutil.rmtree(path)
 
 
 def read_artifact(root: Path, slug: str, filename: str) -> tuple[Path, bytes]:
