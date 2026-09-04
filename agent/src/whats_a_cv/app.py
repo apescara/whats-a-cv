@@ -17,11 +17,27 @@ from .repository import (
     JobDraft, fetch_job_url, compile_latex, delete_draft_application,
 )
 from .repository.service import related_experience, related_expertise
-from .workflow import (CheckpointStore, DraftBundle, EvidenceSet, NextSteps, RequirementSet, ReviewDecision,
-                       continue_after_evidence, draft_cv, draft_next_steps, draft_requirements, evidence_review,
+from .workflow import (CheckpointStore, DraftBundle, EvidenceSet, ModelSettings, NextSteps, RequirementSet, ReviewDecision,
+                       ai_fallback_warning, continue_after_evidence, draft_cv, draft_next_steps, draft_requirements, evidence_review,
                        extract_requirements, finalize_application, ingest_job, new_state, checkpoint_store,
                        profile_context, rank_evidence, render_cv_source, render_job_post, render_next_steps_file,
-                       retrieve_evidence, structured_model, workflow_event)
+                       retrieve_evidence, structured_model, workflow_event, model_settings)
+
+MODEL_ENV_KEYS = {
+    "default": "WHATS_A_CV_MODEL",
+    "requirements": "WHATS_A_CV_REQUIREMENTS_MODEL",
+    "evidence": "WHATS_A_CV_EVIDENCE_MODEL",
+    "cv": "WHATS_A_CV_CV_MODEL",
+    "next_steps": "WHATS_A_CV_NEXT_STEPS_MODEL",
+}
+API_KEY_ENV_KEYS = {
+    "openai": "OPENAI_API_KEY",
+    "anthropic": "ANTHROPIC_API_KEY",
+    "google": "GOOGLE_API_KEY",
+}
+DEFAULT_MODEL = "openai:gpt-5.6-luna"
+RUNTIME_API_KEYS: dict[str, str] = {}
+RUNTIME_MODELS: dict[str, str] = {}
 
 def repository_root() -> Path:
     return Path(os.environ.get("WHATS_A_CV_REPOSITORY", Path(__file__).resolve().parents[3])).resolve()
@@ -40,12 +56,79 @@ app = FastAPI()
 
 
 def ai_enabled() -> bool:
-    return any(os.getenv(name) for name in ("OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_API_KEY"))
+    return bool(RUNTIME_API_KEYS) or any(os.getenv(name) for name in API_KEY_ENV_KEYS.values())
+
+
+def validate_model(value: str) -> None:
+    provider, separator, model = value.partition(":")
+    if not separator or not provider or not model:
+        raise ValueError("models must use provider:model, for example openai:gpt-5.6-luna")
+    if provider not in {"openai", "anthropic", "google"}:
+        raise ValueError("model provider must be openai, anthropic, or google")
+
+
+def active_model_settings(task: str) -> ModelSettings:
+    settings = model_settings(task)
+    configured = RUNTIME_MODELS.get(task)
+    if not configured and task != "default":
+        configured = os.getenv(MODEL_ENV_KEYS[task])
+    configured = configured or RUNTIME_MODELS.get("default")
+    if configured:
+        provider, _, model = configured.partition(":")
+        settings = settings.model_copy(update={"provider": provider, "model": model})
+    if api_key := RUNTIME_API_KEYS.get(settings.provider):
+        settings = settings.model_copy(update={"api_key": api_key})
+    return settings
+
+
+class SettingsUpdate(BaseModel):
+    api_keys: dict[str, str] = {}
+    models: dict[str, str] = {}
+
+
+def settings_summary() -> dict:
+    return {
+        "keys": {name: bool(RUNTIME_API_KEYS.get(name) or os.getenv(env_key)) for name, env_key in API_KEY_ENV_KEYS.items()},
+        "models": {
+            name: RUNTIME_MODELS.get(name, os.getenv(env_key, DEFAULT_MODEL if name == "default" else ""))
+            for name, env_key in MODEL_ENV_KEYS.items()
+        },
+    }
 
 
 @app.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
     return HealthResponse(status="ok")
+
+
+@app.get("/settings")
+def settings():
+    return settings_summary()
+
+
+@app.put("/settings")
+def update_settings(request: SettingsUpdate):
+    unknown = set(request.api_keys) - set(API_KEY_ENV_KEYS)
+    unknown |= set(request.models) - set(MODEL_ENV_KEYS)
+    if unknown:
+        raise HTTPException(status_code=422, detail=f"unsupported setting: {sorted(unknown)[0]}")
+    if any(not value.strip() for value in request.api_keys.values()):
+        raise HTTPException(status_code=422, detail="API keys cannot be empty")
+    if any(name == "default" and not value.strip() for name, value in request.models.items()):
+        raise HTTPException(status_code=422, detail="the default model is required")
+    try:
+        for value in request.models.values():
+            if value.strip():
+                validate_model(value.strip())
+        RUNTIME_API_KEYS.update({name: value.strip() for name, value in request.api_keys.items()})
+        for name, value in request.models.items():
+            if value.strip():
+                RUNTIME_MODELS[name] = value.strip()
+            else:
+                RUNTIME_MODELS.pop(name, None)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    return {**settings_summary(), "runtime_only": True}
 
 
 @app.get("/records/{kind}")
@@ -167,13 +250,23 @@ class WorkflowStartRequest(BaseModel):
 def workflow_start(request: WorkflowStartRequest):
     state = new_state(request.thread_id)
     ingest_job(state, REPOSITORY_ROOT, {"text": request.text, "metadata": request.metadata.model_dump()})
+    used_ai = False
     if ai_enabled():
-        extract_requirements(state, structured_model(RequirementSet, task="requirements"))
-    else:
+        try:
+            extract_requirements(state, structured_model(RequirementSet, settings=active_model_settings("requirements")))
+            used_ai = True
+        except Exception as error:
+            state["warnings"] = [ai_fallback_warning(error)]
+            state["ai_fallback"] = True
+    if not used_ai:
         state["requirements"] = draft_requirements(request.text, REPOSITORY_ROOT).model_dump()
     retrieve_evidence(state, REPOSITORY_ROOT)
-    if ai_enabled():
-        rank_evidence(state, structured_model(EvidenceSet, task="evidence"))
+    if used_ai:
+        try:
+            rank_evidence(state, structured_model(EvidenceSet, settings=active_model_settings("evidence")))
+        except Exception as error:
+            state["warnings"] = [ai_fallback_warning(error)]
+            state["ai_fallback"] = True
     state["interrupt"] = "evidence_review"
     workflow_event(state, "evidence_review", "waiting")
     CHECKPOINTS.save(state)
@@ -200,11 +293,16 @@ def workflow_resume(thread_id: str, request: WorkflowResumeRequest):
     if state.get("interrupt") == "evidence_review":
         evidence_review(state, request.decision)
         if request.decision and request.decision.action == "approve":
-            if ai_enabled():
-                draft_cv(state, structured_model(DraftBundle, task="cv"), profile_context(REPOSITORY_ROOT))
-                draft_next_steps(state, structured_model(NextSteps, task="next_steps"))
-                state["stage"] = "generation_complete"
-                workflow_event(state, "draft_cv")
+            if ai_enabled() and not state.get("ai_fallback"):
+                try:
+                    draft_cv(state, structured_model(DraftBundle, settings=active_model_settings("cv")), profile_context(REPOSITORY_ROOT))
+                    draft_next_steps(state, structured_model(NextSteps, settings=active_model_settings("next_steps")))
+                    state["stage"] = "generation_complete"
+                    workflow_event(state, "draft_cv")
+                except Exception as error:
+                    state["warnings"] = [ai_fallback_warning(error)]
+                    state["ai_fallback"] = True
+                    continue_after_evidence(state)
             else:
                 continue_after_evidence(state)
     CHECKPOINTS.save(state)

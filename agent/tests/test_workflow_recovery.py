@@ -1,5 +1,7 @@
-from whats_a_cv.workflow import CheckpointStore, DraftBundle, ReviewDecision, continue_after_evidence, draft_requirements, evidence_review, finalize_application, ingest_job, model_settings, new_state, render_cv, render_job_post, retrieve_evidence, validate_artifacts
-from whats_a_cv.app import WorkflowStartRequest, workflow_start
+from pathlib import Path
+
+from whats_a_cv.workflow import CheckpointStore, DraftBundle, ReviewDecision, ai_fallback_warning, continue_after_evidence, draft_requirements, evidence_review, finalize_application, ingest_job, model_settings, new_state, render_cv, render_job_post, retrieve_evidence, validate_artifacts
+from whats_a_cv.app import WorkflowResumeRequest, WorkflowStartRequest, workflow_resume, workflow_start
 from whats_a_cv.repository import ApplicationMetadata
 
 
@@ -21,6 +23,46 @@ def test_workflow_start_keeps_unconfigured_ai_draft_usable(monkeypatch, tmp_path
     monkeypatch.setattr("whats_a_cv.app.CHECKPOINTS", CheckpointStore(tmp_path / "state.db"))
     state = workflow_start(WorkflowStartRequest(text="Python data role", metadata=ApplicationMetadata(company="Acme", role="Engineer")))
     assert state["interrupt"] == "evidence_review"
+
+
+def test_workflow_start_falls_back_when_configured_ai_fails(monkeypatch, tmp_path):
+    monkeypatch.setattr("whats_a_cv.app.REPOSITORY_ROOT", tmp_path)
+    monkeypatch.setattr("whats_a_cv.app.CHECKPOINTS", CheckpointStore(tmp_path / "state.db"))
+    monkeypatch.setattr("whats_a_cv.app.ai_enabled", lambda: True)
+    monkeypatch.setattr("whats_a_cv.app.structured_model", lambda *args, **kwargs: (_ for _ in ()).throw(Exception("incorrect_api_key")))
+
+    state = workflow_start(WorkflowStartRequest(text="Required Python experience", metadata=ApplicationMetadata(company="Acme", role="Engineer")))
+
+    assert state["requirements"]["requirements"]
+    assert "rejected the API key" in state["warnings"][0]
+    assert state["ai_fallback"] is True
+    assert state["interrupt"] == "evidence_review"
+
+
+def test_quota_failure_has_a_specific_fallback_warning():
+    error = Exception("429 insufficient_quota credit balance exhausted")
+    error.status_code = 429
+    assert "no available credits" in ai_fallback_warning(error)
+
+
+def test_workflow_resume_falls_back_when_ai_generation_fails(monkeypatch, tmp_path):
+    store = CheckpointStore(tmp_path / "state.db")
+    state = new_state("fallback-thread")
+    state["job"] = {"metadata": {"role": "Engineer"}}
+    state["evidence"] = {"candidates": []}
+    state["interrupt"] = "evidence_review"
+    store.save(state)
+    monkeypatch.setattr("whats_a_cv.app.CHECKPOINTS", store)
+    monkeypatch.setattr("whats_a_cv.app.REPOSITORY_ROOT", tmp_path)
+    monkeypatch.setattr("whats_a_cv.app.ai_enabled", lambda: True)
+    monkeypatch.setattr("whats_a_cv.app.structured_model", lambda *args, **kwargs: (_ for _ in ()).throw(Exception("provider unavailable")))
+
+    result = workflow_resume("fallback-thread", WorkflowResumeRequest(decision=ReviewDecision(action="approve")))
+
+    assert result["stage"] == "generation_complete"
+    assert result["drafts"]["cv"]
+    assert result["ai_fallback"] is True
+    assert "continuing without AI" in result["warnings"][0]
 
 
 def test_rendered_job_post_includes_original_description(tmp_path):
@@ -66,6 +108,15 @@ def test_validation_rejects_unresolved_cv_template_placeholders():
     state["job"] = {"metadata": {"language": "Spanish"}}
     files = {"job-post.md": "---\nlanguage: Spanish\n---\n", "cv.tex": "\\documentclass{article}\n\\address{CITY, COUNTRY}{}{}\n", "next-steps.mdx": "# Next steps\n"}
     assert "cv.tex contains unresolved template placeholders" in validate_artifacts(files, state)
+
+
+def test_fallback_cv_omits_unverified_template_fields(tmp_path):
+    state = new_state("fallback-cv-thread")
+    state["job"] = {"metadata": {"role": "Engineer"}}
+    state["drafts"] = {"cv": DraftBundle(summary="Evidence-bound summary.", claims=[]).model_dump()}
+    rendered = render_cv(state, (Path(__file__).parents[2] / "TEMPLATE.tex").read_text(encoding="utf-8"))
+
+    assert not validate_artifacts({"job-post.md": "---\n---\n", "cv.tex": rendered, "next-steps.mdx": "# Next steps\n"}, state)
 
 
 def test_render_cv_uses_the_ai_document_when_supplied():

@@ -31,6 +31,10 @@ test("profile edit flow has accessible labels, focus, contrast, and errors", asy
   }, fixture);
   await page.goto("/profile/experience/accessibility-fixture");
 
+  await expect(page.getByRole("button", { name: "Review changes" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Edit experience" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+
   const company = page.getByLabel("Company");
   await expect(company).toHaveAttribute("name", "company");
   await company.focus();
@@ -48,4 +52,16 @@ test("profile edit flow has accessible labels, focus, contrast, and errors", asy
   await company.fill("Accessible Company");
   await page.getByRole("button", { name: "Review changes" }).click();
   await expect(page.locator("p[role='alert']")).toHaveText("Could not create a proposal. Check your connection and try again.");
+});
+
+test("expertise records keep the editor in a dialog", async ({ page }) => {
+  const expertise = { slug: "python", name: "Python", category: "Programming", last_used: "2026-09", body: "# Python\n\n- Data pipelines" };
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript((record) => { const originalFetch = window.fetch; window.fetch = (input, init) => { const path = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url, window.location.href).pathname; if (path === "/api/records/expertise/python") return Promise.resolve(new Response(JSON.stringify(record), { headers: { "Content-Type": "application/json" } })); return originalFetch(input, init); }; }, expertise);
+  await page.goto("/profile/expertise/python");
+  await expect(page.locator("h1")).toHaveText("Python");
+  await expect(page.getByRole("button", { name: "Review changes" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Edit expertise" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(page.getByLabel("Name")).toHaveValue("Python");
 });

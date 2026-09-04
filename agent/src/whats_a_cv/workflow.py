@@ -156,11 +156,26 @@ class GraphState(TypedDict, total=False):
     approvals: dict[str, Any]
     artifact_paths: list[str]
     events: list[dict[str, Any]]
+    warnings: list[str]
+    ai_fallback: bool
     interrupt: str | None
 
 
 def new_state(thread_id: str | None = None) -> GraphState:
     return {"thread_id": thread_id or str(uuid.uuid4()), "events": [], "interrupt": None}
+
+
+def ai_fallback_warning(error: Exception) -> str:
+    """Turn provider failures into safe, actionable UI copy."""
+    message = str(error).lower()
+    status = getattr(error, "status_code", None)
+    if status in (401, 403) or any(token in message for token in ("incorrect_api_key", "invalid api key", "authentication")):
+        return "The AI provider rejected the API key. The application is continuing without AI; check the key before your next build."
+    if status == 429 and any(token in message for token in ("quota", "credit", "billing")):
+        return "The AI account has no available credits. The application is continuing without AI; add credits before your next build."
+    if status == 429:
+        return "The AI provider is rate-limiting requests. The application is continuing without AI; try AI again later."
+    return "The AI provider is unavailable. The application is continuing without AI; check its settings or try again later."
 
 
 def state_json(state: GraphState) -> str:
@@ -355,7 +370,22 @@ def render_cv(state: GraphState, template: str) -> str:
     result = template.replace("TARGET ROLE", latex_escape(state["job"]["metadata"]["role"]))
     result = result.replace("TARGETED SUMMARY", latex_escape(draft.summary))
     claims = "\n".join(f"    \\item {latex_escape(claim.text)}" for claim in draft.claims)
-    result = result.replace("RELEVANT, EVIDENCE-BASED ACHIEVEMENT", claims or "")
+    experience_placeholder = """\\section{Experience}
+\\cventry{DATE RANGE}{ROLE}{COMPANY}{LOCATION}{}{
+  \\begin{itemize}
+    \\item RELEVANT, EVIDENCE-BASED ACHIEVEMENT
+  \\end{itemize}
+}
+"""
+    evidence = "" if not claims else f"""\\section{{Relevant Evidence}}
+\\begin{{itemize}}
+{claims}
+\\end{{itemize}}
+"""
+    result = result.replace(experience_placeholder, evidence)
+    result = result.replace("\\address{CITY, COUNTRY}{}{}\n\\phone[mobile]{PHONE}\n\\email{EMAIL}\n", "")
+    result = result.replace("\\section{Technical Skills}\n\\cvitem{CATEGORY}{VERIFIED, ROLE-RELEVANT SKILLS}\n", "")
+    result = result.replace("\\section{Education}\n\\cventry{DATE RANGE}{QUALIFICATION}{INSTITUTION}{LOCATION}{}{}\n", "")
     return result
 
 
